@@ -1,0 +1,7 @@
+{
+  "schemas_url": "http://localhost:8899/schemas/",
+  "requests": {
+    "url": "http://localhost:5000/",
+    "headers": {}
+  }
+}

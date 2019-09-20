@@ -1,0 +1,9 @@
+pytest
+pytest-cov
+pytest_httpserver
+responses
+freezegun
+vcrpy
+flake8
+black
+flask

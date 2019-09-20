@@ -1,0 +1,292 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required: [version, feature]
+additionalProperties: false
+definitions:
+  adapter:
+    $id: '#/definitions/adapter'
+    enum: [broker/kafka, requests/http]
+    title: The Adapter Schema
+    type: string
+  adapterIsBrokerKafka:
+    $id: '#/definitions/adapterIsBrokerKafka'
+    properties:
+      adapter: {const: broker/kafka}
+  adapterIsRequestsHttp:
+    $id: '#/definitions/adapterIsRequestsHttp'
+    properties:
+      adapter: {const: requests/http}
+  assert_that_empty:
+    $id: '#/definitions/assert_that_empty'
+    properties:
+      timeout_after:
+        $id: '#/definitions/assert_that_received/properties/timeout_after'
+        default: ''
+        examples: [5m]
+        pattern: ^(.*)$
+        title: The Timeout_after Schema
+        type: string
+    required: [timeout_after]
+    type: object
+  assert_that_received:
+    $id: '#/definitions/assert_that_received'
+    allOf:
+    - {$ref: '#/definitions/received_properties'}
+    - {$ref: '#/definitions/unordered_schema'}
+    title: The Assert_that_received Schema
+    type: object
+  assert_that_responded:
+    $id: '#/definitions/assert_that_responded'
+    anyOf:
+    - {$ref: '#/definitions/response_status_code_field'}
+    - {$ref: '#/definitions/response_body_field'}
+    title: The Assert_that_responded Schema
+    type: object
+  description:
+    $id: '#/definitions/description'
+    default: ''
+    examples: [Send a request and receive on a kafka topic]
+    pattern: ^(.*)$
+    title: The Description Schema
+    type: string
+  httpRequestHeaders: {additionalProperties: true, type: object}
+  received_properties:
+    $id: '#/definitions/received_properties'
+    properties:
+      timeout_after:
+        $id: '#/definitions/received_properties/properties/timeout_after'
+        default: ''
+        examples: [5m]
+        pattern: ^(.*)$
+        title: The Timeout_after Schema
+        type: string
+      total_events:
+        $id: '#/definitions/received_properties/properties/total_events'
+        properties:
+          equals_to:
+            $id: '#/definitions/received_properties/properties/total_events/properties/equals_to'
+            default: 0
+            examples: [4]
+            title: The Equals_to Schema
+            type: integer
+        required: [equals_to]
+        title: The Total_events Schema
+        type: object
+    required: [timeout_after]
+    title: The shared properties in assert_that_received
+    type: object
+  response_body_field:
+    $id: '#/definitions/response_body'
+    properties:
+      additionalProperties: false
+      body:
+        properties:
+          equals_to_event:
+            $id: '#/definitions/response_body/properties/equals_to_event'
+            default: ''
+            examples: [words1.http]
+            pattern: ^(.*)$
+            title: The Equals_to_event Schema
+            type: string
+        required: [equals_to_event]
+    required: [body]
+    title: The Body Schema
+    type: object
+  response_status_code_field:
+    $id: '#/definitions/response_status_code'
+    additionalProperties: false
+    properties:
+      status_code:
+        properties:
+          equals_to:
+            examples: [200]
+            title: The Equals_to Schema
+            type: integer
+        required: [equals_to]
+        type: object
+    required: [status_code]
+    title: The Status_code Schema
+    type: object
+  simulateMessages:
+    $id: '#/definitions/simulateMessages'
+    items:
+      $id: '#/definitions/simulateMessages/items'
+      properties:
+        events:
+          $id: '#/definitions/simulateMessages/items/properties/events'
+          items:
+            $id: '#/definitions/simulateMessages/items/properties/events/items'
+            default: ''
+            examples: [send-email1.json]
+            pattern: ^(.*)$
+            title: The Items Schema
+            type: string
+          title: The Events Schema
+          type: array
+        topic: {$ref: '#/definitions/topicName'}
+      required: [topic, events]
+      title: The Items Schema
+      type: object
+    title: The SimulateMessages Schema
+    type: array
+  simulateRequests:
+    $id: '#/definitions/simulateRequests'
+    items:
+      $id: '#/definitions/simulateRequests/items'
+      additionalProperties: false
+      properties:
+        events:
+          $id: '#/definitions/simulateRequests/items/properties/events'
+          items:
+            $id: '#/definitions/simulateRequests/items/properties/events/items'
+            default: ''
+            examples: [words1.http, words2.json]
+            pattern: ^(.*)$
+            title: The Items Schema
+            type: string
+          title: The Events Schema
+          type: array
+        headers: {$ref: '#/definitions/httpRequestHeaders'}
+        path:
+          $id: '#/definitions/simulateRequests/items/properties/path'
+          default: ''
+          examples: ['/sources/:app/actions/produce-event']
+          pattern: ^(.*)$
+          title: The Path Schema
+          type: string
+      required: [events]
+      title: The Items Schema
+      type: object
+    title: The Requests Schema
+    type: array
+  topicName: {$id: '#/definitions/topicName', title: The TopicName Schema, type: string}
+  unordered_schema:
+    type: "object"
+    properties:
+      unordered:
+        $id: '#/definitions/unordered_schema'
+        items:
+          $id: '#/definitions/unordered_schema/items'
+          properties:
+            equals_to_event:
+              $id: '#/definitions/unordered_schema/items/properties/equals_to_event'
+              default: ''
+              examples: [words1.http]
+              pattern: ^(.*)$
+              title: The Equals_to_event Schema
+              type: string
+            within:
+              $id: '#/definitions/unordered_schema/items/properties/within'
+              default: ''
+              examples: [4s]
+              pattern: ^(.*)$
+              title: The Within Schema
+              type: string
+          required: [equals_to_event]
+          title: The Items Schema
+          type: object
+        title: The unordered Schema used in assert_that_received
+        type: array
+  validateMessages:
+    $id: '#/definitions/validateMessages'
+    items:
+      $id: '#/definitions/validateMessages/items'
+      oneOf:
+      - $id: '#/definitions/validateMessages/items/oneOf/0/assert_that_received'
+        properties:
+          assert_that_received: {$ref: '#/definitions/assert_that_received'}
+          topic: {$ref: '#/definitions/topicName'}
+        required: [assert_that_received]
+        type: object
+      - $id: '#/definitions/validateMessages/items/oneOf/1/assert_that_empty'
+        properties:
+          assert_that_empty: {$ref: '#/definitions/assert_that_empty'}
+          topic: {$ref: '#/definitions/topicName'}
+        required: [assert_that_empty]
+        type: object
+      title: The Items Schema
+      type: object
+    title: The ValidateMessages Schema
+    type: array
+  validateRequests:
+    $id: '#/definitions/validateRequests'
+    items:
+      $id: '#/definitions/validateRequests/items'
+      additionalProperties: false
+      properties:
+        assert_that_responded: {$ref: '#/definitions/assert_that_responded'}
+        headers: {$ref: '#/definitions/httpRequestHeaders'}
+        path:
+          examples: [/foo/bar/123]
+          type: string
+      required: [path, assert_that_responded]
+      title: The Items Schema
+      type: object
+    title: The Requests Schema
+    type: array
+properties:
+  feature:
+    $id: '#/properties/feature'
+    properties:
+      description: {$ref: '#/definitions/description'}
+      scenarios:
+        $id: '#/properties/feature/properties/scenarios'
+        items:
+          $id: '#/properties/feature/properties/scenarios/items'
+          properties:
+            description: {$ref: '#/definitions/description'}
+            simulate:
+              $id: '#/properties/feature/properties/scenarios/items/properties/simulate'
+              allOf:
+              - if: {$ref: '#/definitions/adapterIsBrokerKafka'}
+                then:
+                  $id: '#/feature/properties/scenarios/items/properties/simulate/allOf/items/0/messages'
+                  properties:
+                    messages: {$ref: '#/definitions/simulateMessages'}
+                  required: [messages]
+              - if: {$ref: '#/definitions/adapterIsRequestsHttp'}
+                then:
+                  $id: '#/feature/properties/scenarios/items/properties/simulate/allOf/items/1/requests'
+                  properties:
+                    requests: {$ref: '#/definitions/simulateRequests'}
+                  required: [requests]
+              properties:
+                adapter: {$ref: '#/definitions/adapter'}
+              required: [adapter]
+              title: The Simulate Schema
+              type: object
+            validate:
+              $id: '#/properties/feature/properties/scenarios/items/properties/validate'
+              allOf:
+              - if: {$ref: '#/definitions/adapterIsBrokerKafka'}
+                then:
+                  $id: '#/feature/properties/scenarios/items/properties/validate/allOf/items/0/messages'
+                  properties:
+                    messages: {$ref: '#/definitions/validateMessages'}
+                  required: [messages]
+              - if: {$ref: '#/definitions/adapterIsRequestsHttp'}
+                then:
+                  $id: '#/feature/properties/scenarios/items/properties/validate/allOf/items/1/requests'
+                  properties:
+                    requests: {$ref: '#/definitions/validateRequests'}
+                  required: [requests]
+              properties:
+                adapter: {$ref: '#/definitions/adapter'}
+              required: [adapter]
+              title: The Validate Schema
+              type: object
+          required: [description, simulate, validate]
+          title: The Items Schema
+          type: object
+        title: The Scenarios Schema
+        type: array
+    required: [description, scenarios]
+    title: The Feature Schema
+    type: object
+  version:
+    $id: '#/properties/version'
+    default: ''
+    examples: [scenario/v2]
+    pattern: ^(.*)$
+    title: The Version Schema
+    type: string

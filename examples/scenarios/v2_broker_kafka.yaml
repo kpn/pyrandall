@@ -1,0 +1,63 @@
+version: scenario/v2
+feature:
+  description: Send a request and receive on a kafka topic
+  # events
+  scenarios:
+    - description: Produce 4 email events and consume them from the same topcic
+      simulate:
+        adapter: broker/kafka
+        messages: # or producers
+          - topic: emails
+            events:
+              - email1.http
+              - email1.http
+              - email2.http
+              - email1.http
+          - topic: emails_two
+            events:
+              - email2.http
+              - email2.http
+              - email2.http
+              - email1.http
+          - topic: emails_three
+            events:
+              - email2.http
+              - email2.http
+              - email2.http
+              - email2.http
+      validate:
+        adapter: broker/kafka
+        messages:
+          - topic: emails
+            # offset: latest # default "latest" or "from beginning"
+            assert_that_received:
+              timeout_after: "1s" # valid values: 10s, 10000ms, 1m
+              total_events: { equals_to: 4 } # I observed in total 4 events
+              # events_unordered:
+              unordered:
+                - { equals_to_event: events/email1.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email1.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email1.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email2.http, within: "4s" } # within currently not ignored
+          - topic: emails_two
+            # offset: latest # default "latest" or "from beginning"
+            assert_that_received:
+              timeout_after: "1s" # valid values: 10s, 10000ms, 1m
+              total_events: { equals_to: 4 } # I observed in total 4 events
+              # events_unordered:
+              unordered:
+                - { equals_to_event: events/email2.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email2.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email1.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email2.http, within: "4s" } # within currently not ignored
+          - topic: emails_three
+            # offset: latest # default "latest" or "from beginning"
+            assert_that_received:
+              timeout_after: "1s" # valid values: 10s, 10000ms, 1m
+              total_events: { equals_to: 4 } # I observed in total 4 events
+              # events_unordered:
+              unordered:
+                - { equals_to_event: events/email2.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email2.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email2.http, within: "4s" } # within currently not ignored
+                - { equals_to_event: events/email2.http, within: "4s" } # within currently not ignored

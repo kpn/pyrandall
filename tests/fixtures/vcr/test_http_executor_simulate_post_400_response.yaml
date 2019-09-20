@@ -1,0 +1,32 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Content-Length:
+      - '0'
+    method: POST
+    uri: http://localhost:5000/users
+  response:
+    body:
+      string: '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+        <title>400 Bad Request</title>
+
+        <h1>Bad Request</h1>
+
+        <p>The browser (or proxy) sent a request that this server could not understand.</p>
+
+        '
+    headers:
+      Content-Length:
+      - '192'
+      Content-Type:
+      - text/html
+      Date:
+      - Mon, 16 Sep 2019 09:54:45 GMT
+      Server:
+      - Werkzeug/0.15.6 Python/3.7.4
+    status:
+      code: 400
+      message: BAD REQUEST
+version: 1

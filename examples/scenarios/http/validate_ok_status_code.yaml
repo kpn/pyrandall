@@ -1,0 +1,18 @@
+---
+version: scenario/v2
+feature:
+  description: Avro ok
+  scenarios:
+    - description: Send text sample and count words
+      simulate:
+        adapter: requests/http
+        requests:
+          - path: /v1/actions/produce-event
+            events:
+              - one_event.json
+      validate:
+        adapter: requests/http
+        requests:
+          - path: /kv/pyrandall/avro_ok
+            assert_that_responded:
+              status_code: { equals_to: 200 }

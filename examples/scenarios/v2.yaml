@@ -1,0 +1,40 @@
+---
+version: scenario/v2
+feature:
+  description: V2 schema exampe
+  scenarios:
+    - description: HTTP to an ingest API and key-value API
+      simulate:
+        adapter: requests/http
+        requests:
+          - path: /v1/actions/produce-event
+            events:
+              - words1.json
+              - words2.json
+      validate:
+        adapter: requests/http
+        requests:
+          - path: /foo/bar/123
+            assert_that_responded:
+              status_code: { equals_to: 200 }
+              body: { equals_to_event: expected_result.json }
+    - description: Produce and Consumer to kafka
+      simulate:
+        adapter: broker/kafka
+        messages:
+          - topic: emails
+            events:
+              - email1.json
+      validate:
+        adapter: broker/kafka
+        messages:
+          - topic: email_results
+            assert_that_received:
+              timeout_after: "5m"
+              total_events: { equals_to: 4 } # I observed in total 4 events
+              unordered:
+                - { equals_to_event: word_count.json }
+          - topic: email_results
+            assert_that_received:
+              last_event: { equals_to_event: word_count.json }
+              timeout_after: 5m

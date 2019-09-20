@@ -1,0 +1,24 @@
+version: scenario/v2
+feature:
+  description: Send a request and receive on a kafka topic
+  scenarios:
+    - description: Produce 4 email events and consume them from the same topcic
+      simulate:
+        adapter: broker/kafka
+        messages:
+          - topic: pyrandall-tests-e2e
+            events:
+              - simple.json
+          - topic: pyrandall-tests-e2e
+            events:
+              - simple2.json
+      validate:
+        adapter: broker/kafka
+        messages:
+          - topic: pyrandall-tests-e2e
+            # offset: latest # default "latest" or "from beginning"
+            assert_that_received:
+              timeout_after: "3s"
+              total_events: { equals_to: 4 } # I observed in total 4 events
+              unordered:
+                - { equals_to_event: email1.http }

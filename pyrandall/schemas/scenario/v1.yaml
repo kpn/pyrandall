@@ -1,0 +1,61 @@
+$schema: http://json-schema.org/draft-04/schema#
+type: object
+required: [scenario, version, tests]
+definitions:
+  HttpHeaders: {additionalProperties: true, type: object}
+properties:
+  scenario:
+    properties:
+      description: {type: string}
+      events:
+        items: {type: string}
+        type: array
+      simulator:
+        properties:
+          random_seed: {type: integer}
+        required: [random_seed]
+        type: object
+      validator:
+        properties:
+          headers: {$ref: '#/definitions/HttpHeaders'}
+        type: object
+    required: [events, description, simulator]
+    type: object
+  tests:
+    items:
+      properties:
+        adapter:
+          default: request/http
+          enum: [request/http, websocket/http]
+          type: string
+        compares_to:
+          properties:
+            path: {type: string}
+          required: [path]
+          type: object
+        request:
+          properties:
+            headers:
+              items:
+                additionalProperties: false
+                properties:
+                  header: {type: string}
+                  value: {type: string}
+                required: [header, value]
+                type: object
+              type: array
+            method:
+              default: GET
+              enum: [GET, POST, PUT]
+              type: string
+            path: {type: string}
+          required: [path]
+          type: object
+        response:
+          properties:
+            status_code: {default: 200, maximum: 600, minimum: 100, type: integer}
+          type: object
+      required: [request]
+      type: object
+    type: array
+  version: {type: string}

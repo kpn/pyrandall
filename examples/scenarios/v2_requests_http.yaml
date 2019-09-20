@@ -1,0 +1,21 @@
+---
+version: scenario/v2
+feature:
+  description: V2 schema exampe
+  # events
+  scenarios:
+    - description: HTTP to schema-ingest and schema-egress apis
+      simulate:
+        adapter: requests/http
+        requests:
+          - path: /v1/actions/produce-event
+            events:
+              - words1.http
+              - words2.http
+      validate:
+        adapter: requests/http
+        requests:
+          - path: /foo/bar/123
+            assert_that_responded:
+              status_code: { equals_to: 200 }
+              body: { equals_to_event: words1.http }

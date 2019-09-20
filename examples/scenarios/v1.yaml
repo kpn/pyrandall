@@ -1,0 +1,17 @@
+---
+version: scenario/v1
+scenario:
+  description: Send text sample and count words
+  events:
+    - words1.http
+  simulator:
+    random_seed: 40
+tests:
+- adapter: request/http # default
+  request:
+    method: GET # optional
+    path: /foo/bar/123
+  response: # optional
+    status_code: 200
+  compares_to:
+    path: expected_result.json

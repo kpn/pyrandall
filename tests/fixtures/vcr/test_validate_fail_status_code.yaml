@@ -1,0 +1,39 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.18.4
+    method: GET
+    uri: http://localhost:5000/cant_find_this
+  response:
+    body:
+      string: '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+        <title>404 Not Found</title>
+
+        <h1>Not Found</h1>
+
+        <p>The requested URL was not found on the server. If you entered the URL manually
+        please check your spelling and try again.</p>
+
+        '
+    headers:
+      Content-Length:
+      - '232'
+      Content-Type:
+      - text/html
+      Date:
+      - Mon, 16 Sep 2019 09:54:44 GMT
+      Server:
+      - Werkzeug/0.15.6 Python/3.7.4
+    status:
+      code: 404
+      message: NOT FOUND
+version: 1

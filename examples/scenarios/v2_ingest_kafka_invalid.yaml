@@ -1,0 +1,15 @@
+version: scenario/v2
+feature:
+  description: Send a request and receive on a kafka topic
+  # events
+  scenarios:
+    - description: Send a email trigger for id 123
+      simulate:
+        adapter: broker/kafka
+        # messages: # or producers
+        #   - topic: emails
+        #     events:
+        #       - send-email.json
+      validate:
+        adapter: broker/kafka
+        requests: []

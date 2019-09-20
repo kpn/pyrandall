@@ -1,0 +1,11 @@
+include pyrandall/schemas/scenario/v2.yaml
+include README.md
+include CHANGELOG
+include VERSION
+
+exclude Makefile
+exclude dev_requirements.txt
+exclude Dockerfile
+exclude docker-compose.yml
+exclude Jenkinsfile
+exclude logging.yaml

@@ -1,0 +1,17 @@
+---
+version: scenario/v2
+feature:
+  description: One event
+  scenarios:
+    - description: Send words1 event
+      simulate:
+        adapter: requests/http
+        requests:
+          - events:
+              - one_event1.json
+      validate:
+        adapter: requests/http
+        requests:
+          - path: /foo/bar/123
+            assert_that_responded:
+              body: { equals_to_event: expected_result.json }

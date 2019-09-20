@@ -1,0 +1,19 @@
+---
+version: scenario/v2
+feature:
+  description: Avro Bad
+  scenarios:
+    - description: Send a payload which is not valid against its avro schema
+      simulate:
+        adapter: requests/http
+        requests:
+          - path: /cant_find_this
+            events:
+              - one_event.json
+      validate:
+      # the output is irrelevant, we use this only for simulate test
+        adapter: requests/http
+        requests:
+          - path: /kv/irrelevant
+            assert_that_responded:
+              body: { equals_to_event: avro/wrong_output.json }
