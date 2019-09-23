@@ -134,6 +134,12 @@ class KafkaConn:
                                 partition: {msg.partition()}, \
                                 topic: {msg.topic()}"
                         )
+                        # TODO: allow assertions to be on message headers etc.
+                        # events.append({
+                        #     "key": msg.key,
+                        #     "headers": msg.headers,
+                        #     "value": msg.value()
+                        # })
                         events.append(msg.value())
 
             else:

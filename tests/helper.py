@@ -3,7 +3,7 @@ import shlex
 import subprocess
 import time
 
-from confluent_kafka import Consumer, TopicPartition
+from confluent_kafka import Consumer, Producer, TopicPartition
 
 
 def shelldon(command: str, stderr=False):
@@ -34,6 +34,16 @@ def ensure_topic(topicname):
     )
     assert 0 == returncode
     assert "" == stderr
+
+
+class KafkaProducer(Producer):
+    def __init__(self, topic):
+        self.topic = topic
+        super().__init__({"bootstrap.servers": "localhost:9092"})
+
+    def send(self, message):
+        self.produce(self.topic, message)
+        self.flush()
 
 
 class KafkaConsumer(Consumer):

@@ -55,7 +55,7 @@ class Reporter(object):
         # TODO: add assertion type (equal, greater than)
         print(
             f"{TWO_SPACE}assertion failed: {fail_text} did not equal, "
-            f"expected: {assertion_call.expected} but got {assertion_call.actual}"
+            f"{assertion_call}"
         )
         # This is redundant to the ResultSet tracking state
         self.failures.append(assertion_call)
@@ -95,6 +95,7 @@ class ResultSet:
         return len(self.assertions) != 0 and all(self.assertions)
 
     def assertion_failed(self, assertion_call, fail_text):
+        import pdb; pdb.set_trace()
         self.reporter.print_assertion_failed(assertion_call, fail_text)
         self.assertions.append(False)
 

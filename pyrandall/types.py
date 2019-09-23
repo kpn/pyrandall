@@ -2,6 +2,7 @@ from enum import Enum, Flag, auto
 from typing import Any, Dict, List, NamedTuple
 
 import jsondiff
+from deepdiff import DeepDiff
 
 
 class ExecutionMode(Enum):
@@ -51,16 +52,17 @@ class Assertion:
         self.spec = spec
         self.resultset = resultset
         self.on_fail_text = on_fail_text
-
-    def __enter__(self):
         if self.field in self.spec:
-            self.call = AssertionCall(expected_value=self.spec[self.field])
+            self.call = self.create_assertion(self.spec[self.field])
         else:
             self.call = SkipAssertionCall()
+
+    def __enter__(self):
         return self.call
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        # TODO: check that no errors where thrown
+        # TODO: check that no errors where raised
+        # (to check a http / socket connection was successfull without exceptions)
         # resultset.raise_error()
         if self.call.called and self.call.result:
             self.resultset.assertion_passed(self.call)
@@ -69,10 +71,18 @@ class Assertion:
         else:
             self.resultset.assertion_skipped(self.call)
 
+    def create_assertion(self, value):
+        return AssertionCall(expected_value=value)
 
-# TODO: This AssertionCall eval function will only compare equality.
-# Add other comparisons and not raised exception assertion
-# (to check a http / socket connection was successfull without exceptions)
+
+class UnorderedDiffAssertion(Assertion):
+    def __init__(self, field: str, spec: Dict, on_fail_text, resultset):
+        super().__init__(field, spec, on_fail_text, resultset)
+
+    def create_assertion(self, value):
+        return UnorderedCompare(expected_value=value)
+
+
 class AssertionCall:
     def __init__(self, expected_value):
         self.expected = expected_value
@@ -103,7 +113,34 @@ class AssertionCall:
             return f"assertion failed, expected {self.expected}, but got {self.actual}"
 
 
-# TODO: implement a special assertion call?
+class UnorderedCompare(AssertionCall):
+    def __init__(self, expected_value):
+        super().__init__(expected_value)
+        self.diff = None
+
+    def eval(self, actual_value):
+        self.called = True
+        self.diff = DeepDiff(
+            self.expected,
+            actual_value,
+            ignore_order=True,
+            report_repetition=True,
+            verbose_level=2,
+        )
+        self.result = self.diff == {}
+
+    def __str__(self):
+        if self.passed():
+            return super().__str__()
+        else:
+            return (
+                f"assertion failed (unordered json comparison"
+                f"got: {self.expected}"
+                f"diff: {self.diff}"
+                f"See https://github.com/seperman/deepdiff for more info on how to read the diff"
+            )
+
+
 def json_deep_equals(expected, actual):
     result = jsondiff.diff(expected, actual)
     return result == {}
