@@ -1,3 +1,4 @@
+DOCKER_COMPOSE=$(shell which docker-compose)
 VERSION=$(shell cat VERSION)
 
 .PHONY: ctags
@@ -10,3 +11,11 @@ pyrandall:
 	tox
 	docker build -t pyrandall:${VERSION} .
 	docker tag pyrandall:${VERSION} pyrandall:latest
+
+.PHONY:
+tox:
+	tox -e py36,fix-lint
+
+.PHONY: travis-test-pr
+travis-test-pr:
+	$(DOCKER_COMPOSE) run --rm tox -e py36,fix-lint

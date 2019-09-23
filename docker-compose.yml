@@ -1,6 +1,15 @@
 ---
 version: '3'
 services:
+  tox:
+    build:
+      context: .
+      dockerfile: Dockerfile-test
+    image: katka-api-test
+    volumes:
+      - .:/app
+    depends_on:
+      - kafka
   zookeeper:
     image: confluentinc/cp-zookeeper:5.0.0
     hostname: zookeeper
