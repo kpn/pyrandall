@@ -15,7 +15,7 @@ setup(
     install_requires=[
         "jsonschema",
         "jsondiff",
-        "requests==2.18.4",
+        "requests~=2.20",
         "PyYAML==5.1",
         "Mako",
         "curlify",
