@@ -5,11 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-test
-    image: katka-api-test
+    image: pyrandall-tox
     volumes:
       - .:/app
     depends_on:
       - kafka
+  kafkacat:
+    image: confluentinc/cp-kafkacat
+    entrypoint: kafkacat
   zookeeper:
     image: confluentinc/cp-zookeeper:5.0.0
     hostname: zookeeper
@@ -25,12 +28,13 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - "9092:19092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+      KAFKA_ADVERTISED_LISTENERS: OUTSIDE://127.0.0.1:19092,INSIDE://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: OUTSIDE:PLAINTEXT,INSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0

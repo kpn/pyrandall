@@ -16,6 +16,10 @@ pyrandall:
 tox:
 	tox -e py36,fix-lint
 
-.PHONY: travis-test-pr
-travis-test-pr:
+.PHONY: travis-pr-build
+travis-pr-build:
+		$(DOCKER_COMPOSE) build tox
+
+.PHONY: travis-pr-test
+travis-pr-test:
 	$(DOCKER_COMPOSE) run --rm tox -e py36,fix-lint

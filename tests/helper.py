@@ -1,3 +1,4 @@
+import os
 import shlex
 import subprocess
 import time
@@ -38,9 +39,8 @@ def ensure_topic(topicname):
 class KafkaConsumer(Consumer):
     def __init__(self, topicname):
         # ensure_topic(topicname)
-        super().__init__(
-            {"group.id": "pyrandall-tests", "bootstrap.servers": "localhost:9092"}
-        )
+        kafka = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+        super().__init__({"group.id": "pyrandall-tests", "bootstrap.servers": kafka})
         self.waiting_assignment = True
         self.topic = topicname
         self.topic_partition = TopicPartition(topic=self.topic, partition=0)

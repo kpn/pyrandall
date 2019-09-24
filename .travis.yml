@@ -8,5 +8,9 @@ services:
 before_install:
   - pip install --upgrade pip
 
-script:
-  - make travis-test-pr
+jobs:
+  include:
+    - stage: "Build"
+      script: make travis-pr-build
+    - stage: "Test"
+      script: make travis-pr-test
