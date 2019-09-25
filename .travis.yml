@@ -1,0 +1,16 @@
+language: python
+python:
+  - "3.6"
+
+services:
+  - docker
+
+before_install:
+  - pip install --upgrade pip
+
+jobs:
+  include:
+    - stage: "Build"
+      script: make travis-pr-build
+    - stage: "Test"
+      script: make travis-pr-test

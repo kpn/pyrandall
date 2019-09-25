@@ -1,0 +1,10 @@
+FROM python:3.6
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends netcat-openbsd && \
+    pip install --upgrade pip && pip install tox
+
+ENV KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+ENTRYPOINT "/app/files/test_entrypoint.sh"

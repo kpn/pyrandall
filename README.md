@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.org/kpn/pyrandall.svg?branch=master)](https://travis-ci.org/kpn/pyrandall)
+
 # PYRANDALL
 
 Simulator and Sanitytest framework that encourages to write tests upfront, but are suitable to run as e2e tests.
