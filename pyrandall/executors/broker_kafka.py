@@ -30,11 +30,7 @@ class BrokerKafka(Executor):
             a.actual_value = send
 
     def validate(self, spec, reporter):
-        results = []
         kafka = KafkaConn()
-        # Be aware that multiple scenarios that use the same topics might cause issues. For now run them sequentially
-        # Solution needed for handle multiple scenarios in the same topic
-
         consumed = kafka.consume(spec.topic, spec.assertions.get("timeout_after", 2.0))
         with Assertion(
             "total_events", spec.assertions, "total amount of received events", reporter

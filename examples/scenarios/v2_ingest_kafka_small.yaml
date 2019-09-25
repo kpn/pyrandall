@@ -15,10 +15,17 @@ feature:
       validate:
         adapter: broker/kafka
         messages:
-          - topic: pyrandall-tests-e2e-processed
-            # offset: latest # default "latest" or "from beginning"
+          - topic: pyrandall-tests-validate-1
             assert_that_received:
               timeout_after: "3s"
-              total_events: { equals_to: 4 } # I observed in total 4 events
+              total_events: { equals_to: 3 }
               unordered:
-                - { equals_to_event: simple.json }
+                - { equals_to_event: clicks/1.json }
+                - { equals_to_event: clicks/2.json }
+                - { equals_to_event: clicks/3.json }
+          - topic: pyrandall-tests-validate-2
+            assert_that_received:
+              total_events: { equals_to: 1 }
+              timeout_after: "1000ms"
+              unordered:
+                - { equals_to_event: clicks/3.json }

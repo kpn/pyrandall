@@ -5,7 +5,8 @@ from pyrandall import cli
 from tests.conftest import vcr
 from tests.helper import KafkaProducer
 
-TEST_TOPIC = "pyrandall-tests-e2e-processed"
+TOPIC_1 = "pyrandall-validate-1"
+TOPIC_2 = "pyrandall-validate-2"
 
 
 config = "examples/config/v1.json"
@@ -15,9 +16,14 @@ MOCK_ARGV = ["--config", config, "--dataflow", "examples/", "validate"]
 # freeze time in order to hardcode timestamps
 @freeze_time("2012-01-14 14:33:12")
 @vcr.use_cassette("test_ingest_to_kafka")
-def test_validate_consumes_event():
-    producer = KafkaProducer(TEST_TOPIC)
-    # producer.send(b'{"id": "bar"}')
+def test_validate_consumes_events_unordered():
+    producer = KafkaProducer(TOPIC_1)
+    producer.send(b'{"click": "three"}')
+    producer.send(b'{"click": "one"}')
+    producer.send(b'{"click": "two"}')
+
+    producer = KafkaProducer(TOPIC_2)
+    producer.send(b'{"click": "three"}')
 
     # run validate to consume a message from kafka
     # running following command:
