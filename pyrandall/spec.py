@@ -270,9 +270,9 @@ class ScenarioGroup(object):
         m = re.compile(r"[0-9]*m$")
         s = re.compile(r"[0-9]*s$")
         if ms.match(timeout):
-            return float(timeout[0:-2] / 1000)
+            return int(timeout[0:-2]) / 1000
         elif m.match(timeout):
-            return float(timeout[0:-1] * 60)
+            return float(timeout[0:-1]) * 60
         elif s.match(timeout):
             return float(timeout[0:-1])
         else:
