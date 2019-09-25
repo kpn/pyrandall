@@ -95,7 +95,6 @@ class ResultSet:
         return len(self.assertions) != 0 and all(self.assertions)
 
     def assertion_failed(self, assertion_call, fail_text):
-        import pdb; pdb.set_trace()
         self.reporter.print_assertion_failed(assertion_call, fail_text)
         self.assertions.append(False)
 

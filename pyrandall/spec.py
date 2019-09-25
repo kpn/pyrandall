@@ -262,9 +262,6 @@ class ScenarioGroup(object):
                     ]
                 }
             )
-            import pdb
-
-            pdb.set_trace()
         return assertions
 
     def convert_timeout(self, timeout):
