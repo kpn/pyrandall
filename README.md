@@ -2,8 +2,8 @@
 
 # PYRANDALL
 
-Simulator and Sanitytest framework that encourages to write tests upfront, but are suitable to run as e2e tests.
-The framework has a focus on supporting Event Streaming and Stream Processors.
+Data simulation and validation framework that supports [Behaviour-Driven Development (BDD), a software development process](https://cucumber.io/docs/bdd/).
+Pyrandall' focus is to drive the development of streaming architectures and [Event Sourcing](https://martinfowler.com/eaaDev/EventSourcing.html).
 
 ## Running examples
 
