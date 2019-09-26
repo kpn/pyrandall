@@ -2,8 +2,8 @@
 
 # PYRANDALL
 
-Data simulation and validation framework that supports [Behaviour-Driven Development (BDD), a software development process](https://cucumber.io/docs/bdd/).
-Pyrandall' focus is to drive the development of streaming architectures and [Event Sourcing](https://martinfowler.com/eaaDev/EventSourcing.html).
+Data simulation and validation framework that supports Behaviour-Driven Development (BDD)<sup>1</sup>. \
+Pyrandall' focus is to drive the development of streaming architectures and Event Sourcing<sup>2</sup>.
 
 ## Running examples
 
@@ -126,3 +126,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+
+# Footnotes
+
+1. BDD is a software development process and automated tests are an outcome of that: https://cucumber.io/docs/bdd/.
+1. Read more about Event Sourcing here: https://martinfowler.com/eaaDev/EventSourcing.html
