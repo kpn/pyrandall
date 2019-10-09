@@ -38,6 +38,7 @@ def ensure_topic(topicname):
 
 class KafkaProducer(Producer):
     def __init__(self, topic):
+        ensure_topic(topic)
         self.topic = topic
         super().__init__({"bootstrap.servers": "localhost:9092"})
 

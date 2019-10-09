@@ -17,8 +17,6 @@ FLAGS_MAP = {
 
 
 def run_command(config):
-    # remove unwanted keys and pass config as keyword arguments
-    del config["func"]
     specfile = config.pop("specfile")
     config["default_request_url"] = config["requests"].pop("url")
 
@@ -58,17 +56,14 @@ def setup_args():
     subparsers = parser.add_subparsers(dest="command")
     # add simulate subcommand
     sim_parser = subparsers.add_parser("simulate", help="run Simulator for specfile")
-    sim_parser.set_defaults(func=run_command)
     add_common_args(sim_parser)
     # add sanitycheck (legacy name)
     san_parser = subparsers.add_parser(
         "sanitytest", help="run Validate for specfile (Use validate command)"
     )
-    san_parser.set_defaults(func=run_command)
     add_common_args(san_parser)
     # add validate subcommand
     val_parser = subparsers.add_parser("validate", help="run Validate for specfile")
-    val_parser.set_defaults(func=run_command)
     add_common_args(val_parser)
 
     return parser
@@ -117,7 +112,7 @@ def start(argv, config=None):
     config.update(args_config.__dict__)
 
     try:
-        args_config.func(config)
+        run_command(config)
     except jsonschema.exceptions.ValidationError:
         print("Failed validating input yaml")
         exit(4)

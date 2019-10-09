@@ -5,8 +5,8 @@ from pyrandall import cli
 from tests.conftest import vcr
 from tests.helper import KafkaProducer
 
-TOPIC_1 = "pyrandall-validate-1"
-TOPIC_2 = "pyrandall-validate-2"
+TOPIC_1 = "pyrandall-tests-validate-1"
+TOPIC_2 = "pyrandall-tests-validate-2"
 
 
 config = "examples/config/v1.json"

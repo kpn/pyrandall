@@ -1,6 +1,5 @@
 from pyrandall.kafka import KafkaConn
 from pyrandall.types import Assertion, ExecutionMode, UnorderedDiffAssertion
-
 from .common import Executor
 
 

@@ -14,6 +14,7 @@ class ExecutionMode(Enum):
 
 
 class Adapter(Enum):
+    REQUEST_HTTP_EVENTS = "request/http/events"
     REQUESTS_HTTP = "request/http"
     BROKER_KAFKA = "broker/kafka"
 
@@ -102,6 +103,7 @@ class AssertionCall:
     def eval(self, actual_value):
         self.called = True
         self.result = self.expected == actual_value
+        return self.result
 
     def passed(self):
         return self.called and self.result
@@ -128,6 +130,7 @@ class UnorderedCompare(AssertionCall):
             verbose_level=2,
         )
         self.result = self.diff == {}
+        return self.result
 
     def __str__(self):
         if self.passed():
@@ -162,6 +165,7 @@ class SkipAssertionCall(AssertionCall):
 
 # implicit Data interface of records below:
 # - field execution_mode is present
+# - field adapter is constant
 # - field assertions is present
 
 
@@ -178,12 +182,14 @@ class RequestHttpSpec(NamedTuple):
     # validate fields
     # assert_that_responded translated to fields
     assertions: Dict[str, Any] = {}
+    adapter: Adapter = Adapter.REQUESTS_HTTP
 
 
 class RequestEventsSpec(NamedTuple):
-    execution_mode = ExecutionMode.SIMULATING
     # general request options
     requests: List[RequestHttpSpec]
+    execution_mode = ExecutionMode.SIMULATING
+    adapter: Adapter = Adapter.REQUESTS_HTTP
 
 
 class BrokerKafkaSpec(NamedTuple):
@@ -195,6 +201,7 @@ class BrokerKafkaSpec(NamedTuple):
     # validate fields
     # assert_that_responded translated to fields
     assertions: Dict[str, Any] = {}
+    adapter: Adapter = Adapter.BROKER_KAFKA
 
 
 __all__ = [

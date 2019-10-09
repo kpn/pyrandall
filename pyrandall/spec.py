@@ -117,8 +117,6 @@ class ScenarioGroup(object):
         out = []
         item = data["simulate"]
         if item["adapter"] == "requests/http":
-            # TODO: look into removing this state
-            self.simulate_adapter = Adapter.REQUESTS_HTTP
             for spec in item["requests"]:
                 o = self.build_simulate_request_events_spec(spec)
                 out.append(o)
@@ -141,7 +139,7 @@ class ScenarioGroup(object):
             o = self.build_simulate_request(spec, fpath)
             out.append(o)
         del spec["assert_that_responded"]
-        return RequestEventsSpec(requests=out)
+        return RequestEventsSpec(requests=out, adapter=Adapter.REQUEST_HTTP_EVENTS)
 
     def build_simulate_request(self, spec, fpath):
         if self.default_request_url is None:
@@ -161,6 +159,7 @@ class ScenarioGroup(object):
             url=join_urlpath(self.default_request_url, spec.get("path", None)),
             headers=request.get("headers", {}),
             body=request.get("body", None),
+            adapter=None
         )
 
     def build_simulate_broker_spec(self, spec):
@@ -171,6 +170,7 @@ class ScenarioGroup(object):
         assertions = {"events_produced": {"equals_to": len(events)}}
         return BrokerKafkaSpec(
             execution_mode=ExecutionMode.SIMULATING,
+            adapter=Adapter.BROKER_KAFKA,
             events=events,
             assertions=self.flatten_assertions(Adapter.BROKER_KAFKA, assertions),
             topic=spec["topic"],
@@ -182,22 +182,18 @@ class ScenarioGroup(object):
     def build_validate_tasks(self, data):
         out = []
         item = data["validate"]
-        mode = ExecutionMode.VALIDATING
         if item["adapter"] == "requests/http":
-            # look into removing state over lists
-            self.validate_adapter = Adapter.REQUESTS_HTTP
             for spec in item["requests"]:
-                o = self.build_validate_request_spec(mode, spec)
+                o = self.build_validate_request_spec(spec)
                 out.append(o)
 
         if item["adapter"] == "broker/kafka":
-            self.validate_adapter = Adapter.BROKER_KAFKA
             for spec in item["messages"]:
-                o = self.build_validate_broker_spec(mode, spec)
+                o = self.build_validate_broker_spec(spec)
                 out.append(o)
         return out
 
-    def build_validate_request_spec(self, execution_mode, spec):
+    def build_validate_request_spec(self, spec):
         if self.default_request_url is None:
             raise ValueError(
                 f"self.default_request_url is {self.default_request_url}. "
@@ -209,7 +205,8 @@ class ScenarioGroup(object):
 
         # build according to scenario/v2 schema
         return RequestHttpSpec(
-            execution_mode=execution_mode,
+            execution_mode=ExecutionMode.VALIDATING,
+            adapter=Adapter.REQUESTS_HTTP,
             assertions=assertions,
             method=spec.get("method", "GET"),
             url=join_urlpath(self.default_request_url, spec.get("path", None)),
@@ -217,10 +214,11 @@ class ScenarioGroup(object):
             body=None,
         )
 
-    def build_validate_broker_spec(self, execution_mode, spec):
+    def build_validate_broker_spec(self, spec):
         assertions = self.broker_assertions(spec)
         return BrokerKafkaSpec(
             execution_mode=ExecutionMode.VALIDATING,
+            adapter=Adapter.BROKER_KAFKA,
             events=[],
             assertions=assertions,
             topic=spec["topic"],

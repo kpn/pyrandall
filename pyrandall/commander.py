@@ -35,30 +35,32 @@ class Commander:
             # 2 things:
             # 1. success/failure per test and overall
             # 2. call output interface
-            resultset = reporter.scenario(scenario.description)
+            reporter.scenario(scenario.description)
 
             if self.flags & Flags.SIMULATE:
-                reporter.simulate(scenario.simulate_adapter)
+                reporter.simulate()
+                resultset = reporter.create_and_track_resultset()
                 for spec in scenario.simulate_tasks:
-                    # creating a executor for the spec in simulate_tasks
-                    # with it, a new task reporter that will report success or not
-                    if scenario.simulate_adapter == Adapter.REQUESTS_HTTP:
-                        e = executors.RequestHttpEvents(spec)
-                    elif scenario.simulate_adapter == Adapter.BROKER_KAFKA:
-                        e = executors.BrokerKafka(spec)
-                    else:
-                        raise NotImplementedError("no such adapter implemented")
+                    e = self.executor_factory(spec)
                     reporter.run_task(e.represent())
                     e.execute(resultset)
 
             if self.flags & Flags.VALIDATE:
-                reporter.validate(scenario.validate_adapter)
+                reporter.validate()
+                resultset = reporter.create_and_track_resultset()
                 for spec in scenario.validate_tasks:
-                    if scenario.validate_adapter == Adapter.REQUESTS_HTTP:
-                        e = executors.RequestHttp(spec)
-                    elif scenario.validate_adapter == Adapter.BROKER_KAFKA:
-                        e = executors.BrokerKafka(spec)
-                    else:
-                        raise NotImplementedError("no such adapter implemented")
+                    e = self.executor_factory(spec)
                     reporter.run_task(e.represent())
                     e.execute(resultset)
+
+    def executor_factory(self, spec):
+        # each spec can be run with an executor
+        # based on the adapter defined on the spec
+        if spec.adapter == Adapter.REQUESTS_HTTP:
+            return executors.RequestHttp(spec)
+        elif spec.adapter == Adapter.REQUEST_HTTP_EVENTS:
+            return executors.RequestHttpEvents(spec)
+        elif spec.adapter == Adapter.BROKER_KAFKA:
+            return executors.BrokerKafka(spec)
+        else:
+            raise NotImplementedError("no such adapter implemented")

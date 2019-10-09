@@ -9,7 +9,9 @@ TWO_SPACE = "      - "
 
 class Reporter(object):
     def __init__(self):
+        # instances off ResultSet
         self.results = []
+        # failures are kept for printing at the end of a run
         self.failures = []
 
     def feature(self, text):
@@ -27,26 +29,28 @@ class Reporter(object):
             uses Scenario interface to get the title / description data
         """
         print(f"{SPACE}Scenario {text}")
-        # TODO: move or clarify this method name
+
+    # TODO: move this to commander
+    def create_and_track_resultset(self):
         rs = ResultSet(self)
         self.results.append(rs)
         return rs
 
-    def simulate(self, text):
+    def simulate(self):
         """
             stores "scenario.feature.senario.simulate[]" items to the output buffer
 
             uses Scenario interface to get the title / description data
         """
-        print(f"{ONE_SPACE}Simulate {text}")
+        print(f"{ONE_SPACE}Simulate")
 
-    def validate(self, text):
+    def validate(self):
         """
             stores "scenario.feature.senario.validate[]" items to the output buffer
 
             uses Scenario interface to get the title / description data
         """
-        print(f"{ONE_SPACE}Validate {text}")
+        print(f"{ONE_SPACE}Validate")
 
     def run_task(self, text):
         print(f"{ONE_SPACE}{text}")
@@ -106,7 +110,3 @@ class ResultSet:
         self.reporter.print_assertion_skipped(assertion_call)
         # True right?
         self.assertions.append(True)
-
-    # Implement interface
-    def run_task(self, text):
-        self.reporter.run_task(text)

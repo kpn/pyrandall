@@ -32,21 +32,24 @@ def new_executor(assertions):
 MESSAGE_JSON = b'{\n  "uri": "iphone://settings/updates",\n  "session": "111",\n  "timestamp": 2\n}\n'
 
 
-@mock.patch("pyrandall.executors.broker_kafka.KafkaConn.consume")
-def test_executor_fails_zero_assertions(kafka_mock, reporter_1):
-    spec = MagicMock(
-        unsafe=True, execution_mode=ExecutionMode.VALIDATING, assertions={}
-    )
-    executor = BrokerKafka(spec)
-    result = executor.execute(reporter_1)
-    reporter_1.assertion_failed.assert_called_with(ANY)
+# @mock.patch("pyrandall.executors.broker_kafka.KafkaConn.consume")
+# def test_executor_fails_zero_assertions(kafka_mock, reporter_1):
+#     spec = MagicMock(
+#         unsafe=True, execution_mode=ExecutionMode.VALIDATING, assertions={}
+#     )
+#     executor = BrokerKafka(spec)
+#     result = executor.execute(reporter_1)
+#     reporter_1.assertion_failed.assert_called_with(mock.ANY)
 
 
+# given consumer returns a list with 0 messages
 @mock.patch("pyrandall.executors.broker_kafka.KafkaConn.consume", return_value=[])
 def test_validate_fail_zero_messages(kafka_mock, reporter_1):
+    # when the expected value is 1
     validator = new_executor({"total_events": 1})
-    # should this return assertion calls? so testing becomes easy?
+    # and it is executed
     validator.execute(reporter_1)
+    # then report that a assertion failed
     reporter_1.assertion_failed.assert_called_with(
         mock.ANY, "total amount of received events"
     )
@@ -67,13 +70,12 @@ def test_validate_fail_one_messages_body(kafka_mock, reporter_1):
 
 
 @mock.patch("pyrandall.executors.broker_kafka.KafkaConn.consume")
-def test_validate_matches_all(kafka_mock, reporter):
-    reporter_1 = reporter
+def test_validate_matches_all(kafka_mock, reporter_1):
     # given a message with bytes json
-    kafka_mock.return_value = [{"foo": MESSAGE_JSON}]
+    kafka_mock.return_value = [MESSAGE_JSON]
     # and validators that asserts 1 message and 1 message value
     validator = new_executor(
-        {"total_events": 1, "unordered": [{"value": MESSAGE_JSON}]}
+        {"total_events": 1, "unordered": [MESSAGE_JSON]}
     )
     validator.execute(reporter_1)
     reporter_1.assertion_failed.assert_not_called()
