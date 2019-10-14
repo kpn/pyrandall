@@ -18,6 +18,10 @@ class ConsumerState(Enum):
     TIMEOUT_SET = 2
 
 
+class KafkaSetupError(Exception):
+    pass
+
+
 class KafkaConn:
     def __init__(self):
         self.consume_lock = ConsumerState.PARTITIONS_UNASSIGNED
@@ -36,7 +40,7 @@ class KafkaConn:
                         "This Timout might indicate the broker is down or connection is misconfigured"
                     )
                 log.error(f"Error while producing initial msg: {error}")
-                sys.exit(1)
+                raise KafkaSetupError()
 
         config = ConfigFactory(kafka_client="producer").config
         config["delivery.timeout.ms"] = "3000"  # 3 seconds
@@ -88,7 +92,7 @@ class KafkaConn:
     # partitions are assigned (max 60 seconds). After assignment the regular
     # timeout are used. These should be set to a couple of seconds in the
     # scenario itself                      .
-    def consume(self, topic, topic_timeout):
+    def consume(self, topic, timeout_consumer):
         kafka_config_consumer = ConfigFactory(kafka_client="consumer")
         config = kafka_config_consumer.config
         log.info("kafka config for consume %s", config)
@@ -98,7 +102,6 @@ class KafkaConn:
 
         start_time = time.monotonic()
         timeout_start_time = start_time
-        timeout_consumer = 60.0
 
         # actual consumer starts now
         # subscribe to 1 or more topics and define the callback function
