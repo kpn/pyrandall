@@ -29,7 +29,6 @@ class BrokerKafka(Executor):
             a.actual_value = send
 
     def validate(self, spec, reporter):
-        import pdb; pdb.set_trace()
         kafka = KafkaConn()
         kafka.check_connection()
         consumed = kafka.consume(spec.topic, spec.assertions.get("timeout_after", 2.0))

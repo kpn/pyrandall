@@ -24,28 +24,29 @@ ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL = [
 ]
 
 
-class TestSanitycheck:
-    @patch("pyrandall.cli.ArgumentParser._print_message")
-    def test_execute_a_sanitytest_fails(self, print_message):
-        with pytest.raises(SystemExit) as context:
-            cli.start([])
-        assert context.value.code == 2
-        print_message.assert_called()
+@patch("pyrandall.cli.ArgumentParser._print_message")
+def test_execute_a_sanitytest_fails(print_message):
+    with pytest.raises(SystemExit) as context:
+        cli.start([])
+    assert context.value.code == 2
+    print_message.assert_called()
 
-    @vcr.use_cassette("test_validate_assertions_pass")
-    def test_validate_assertions_pass(self):
-        with pytest.raises(SystemExit) as context:
-            cli.start(ARGV_HTTP_VALIDATE_1_OK)
-        if context.value.code == 2:
-            pytest.fail(cli.argparse_error(ARGV_HTTP_VALIDATE_1_OK))
 
-        assert context.value.code == 0
+@vcr.use_cassette("test_validate_assertions_pass")
+def test_validate_assertions_pass():
+    with pytest.raises(SystemExit) as context:
+        cli.start(ARGV_HTTP_VALIDATE_1_OK)
+    if context.value.code == 2:
+        pytest.fail(cli.argparse_error(ARGV_HTTP_VALIDATE_1_OK))
 
-    @vcr.use_cassette("test_validate_fail_status_code")
-    def test_validate_fail_status_code(self):
-        with pytest.raises(SystemExit) as context:
-            cli.start(ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL)
-        if context.value.code == 2:
-            pytest.fail(cli.argparse_error(ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL))
+    assert context.value.code == 0
 
-        assert context.value.code == 1
+
+@vcr.use_cassette("test_validate_fail_status_code")
+def test_validate_fail_status_code():
+    with pytest.raises(SystemExit) as context:
+        cli.start(ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL)
+    if context.value.code == 2:
+        pytest.fail(cli.argparse_error(ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL))
+
+    assert context.value.code == 1

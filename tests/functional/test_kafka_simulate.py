@@ -1,9 +1,11 @@
+import os
 import pytest
 from freezegun import freeze_time
 
 from pyrandall import cli
 from tests.conftest import vcr
 from tests.helper import KafkaConsumer
+
 
 TEST_TOPIC = "pyrandall-tests-e2e"
 
@@ -24,7 +26,7 @@ def test_invalid_kafka_scenario():
 # freeze time in order to hardcode timestamps
 @freeze_time("2012-01-14 14:33:12")
 @vcr.use_cassette("test_ingest_to_kafka")
-def test_simulate_produces_event():
+def test_simulate_produces_event(kafka_cluster_info):
     consumer = KafkaConsumer(TEST_TOPIC)
     try:
         highwater = consumer.get_high_watermark()

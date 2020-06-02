@@ -23,6 +23,7 @@ class KafkaSetupError(Exception):
 
 
 class KafkaConn:
+
     def __init__(self):
         self.consume_lock = ConsumerState.PARTITIONS_UNASSIGNED
 
@@ -30,7 +31,8 @@ class KafkaConn:
     # removes lock for actual consumption
     def callback_on_assignment(self, consumer, partitions):
         self.consume_lock = ConsumerState.PARTITIONS_ASSIGNED
-        log.info(f"Assignment: {partitions}")
+        offsets = consumer.committed(partitions)
+        log.info(f"Assignment: {offsets}")
 
     def check_connection(self):
         def check_callback(error, event):
@@ -54,7 +56,7 @@ class KafkaConn:
         else:
             log.info(
                 f"Event produced, topic: {event.topic()}, \
-                     partition: {event.partition()}"
+                    partition: {event.partition()}"
             )
 
     def produce_message(self, topic, body, headers=None, partition_key=None):
@@ -92,26 +94,27 @@ class KafkaConn:
     # partitions are assigned (max 60 seconds). After assignment the regular
     # timeout are used. These should be set to a couple of seconds in the
     # scenario itself                      .
-    def consume(self, topic, timeout_consumer):
+    def consume(self, topic, topic_timeout):
         kafka_config_consumer = ConfigFactory(kafka_client="consumer")
         config = kafka_config_consumer.config
         log.info("kafka config for consume %s", config)
-        kcons = Consumer(config)
+        consumer = Consumer(config)
 
         events = []
 
         start_time = time.monotonic()
         timeout_start_time = start_time
+        timeout_consumer = 10.0
 
         # actual consumer starts now
         # subscribe to 1 or more topics and define the callback function
         # callback is only received after consumer.consume() is called!
-        kcons.subscribe([topic], on_assign=self.callback_on_assignment)
-        log.info("Waiting for partition assignment ... (timeout at 60 seconds")
+        consumer.subscribe([topic], on_assign=self.callback_on_assignment)
+        log.info(f"Waiting for partition assignment ... (timeout at {timeout_consumer} seconds")
         try:
             while (time.monotonic() - timeout_start_time) < timeout_consumer:
                 # start consumption
-                messages = kcons.consume(timeout=0.1)
+                messages = consumer.consume(timeout=0.1)
                 # check for partition assignment
                 if self.consume_lock == ConsumerState.PARTITIONS_UNASSIGNED:
                     # this should not happen but we are not 100% sure
@@ -123,6 +126,7 @@ class KafkaConn:
                 # and reset the start time from which to determine timeout
                 # violation
                 elif self.consume_lock == ConsumerState.PARTITIONS_ASSIGNED:
+                    
                     timeout_start_time = time.monotonic()
                     timeout_consumer = topic_timeout
 
@@ -144,7 +148,7 @@ class KafkaConn:
                         #     "value": msg.value()
                         # })
                         events.append(msg.value())
-
+            # only executed when while condition becomes false
             else:
                 # at the end check if the partition assignment was achieved
                 if self.consume_lock != ConsumerState.TIMEOUT_SET:
@@ -155,7 +159,7 @@ class KafkaConn:
             pass
 
         finally:
-            kcons.close()
+            consumer.close()
 
         end_time = time.monotonic()
         log.debug(f"this cycle took: {(end_time - start_time)} seconds")
@@ -178,7 +182,7 @@ class ConfigFactory:
             self.config = self.from_env()
         if kafka_client == "consumer":
             self.config["group.id"] = "pyrandall-test"
-            self.config["auto.offset.reset"] = "earliest"
+            self.config["auto.offset.reset"] = "end"
             # self.config['debug'] = "topic,msg,broker"
             self.config["enable.partition.eof"] = "false"
         elif kafka_client == "producer":
