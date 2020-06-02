@@ -2,8 +2,8 @@
 
 # PYRANDALL
 
-Simulator and Sanitytest framework that encourages to write tests upfront, but are suitable to run as e2e tests.
-The framework has a focus on supporting Event Streaming and Stream Processors.
+Data simulation and validation framework that supports Behaviour-Driven Development (BDD)<sup>1</sup>. \
+Pyrandall' focus is to drive the development of streaming architectures and Event Sourcing<sup>2</sup>.
 
 ## Running examples
 
@@ -26,7 +26,7 @@ python stubserver.py
 
 # Example of scenario/v2 schema
 
-The input yaml is validated with jsonschema, found here `pyrandall/schemas/scenario/v2.yaml`
+The input yaml is validated with jsonschema, the schema can be found here [pyrandall/schemas/scenario/v2.yaml](https://github.com/kpn/pyrandall/tree/master/pyrandall/schemas/scenario/v2.yaml).
 
 ```
 ---
@@ -78,11 +78,12 @@ feature:
 * Focus on developers experience when creating dataflows. Where the emphasis lies in creating the events.
 * Simulated "events" are read from template files. By default json is supported.
 * Possibility to overwrite or extend pyrandall default behaviors with pluggy, a plugin system developed and used by pytest.
-* See a complete example of the pluggy: [https://pluggy.readthedocs.io/en/latest/#a-complete-example](https://pluggy.readthedocs.io/en/latest/#a-complete-example)
+* See a complete example of pluggy: [https://pluggy.readthedocs.io/en/latest/#a-complete-example](https://pluggy.readthedocs.io/en/latest/#a-complete-example)
 
 
-Pyrandall is run from within docker. Connections are often only accessible through deployment and containers are de facto today.
-It also enables us to add complex dependencies like `librdkafka` to use confluent-kafka which supports all api versions offered by Kafka.
+Pyrandall is run from within docker. Connections are often only accessible through deployment and \
+containers are de facto today. It also enables us to add complex dependencies like `librdkafka` to \
+use confluent-kafka which supports all api versions offered by Kafka.
 
 For adding plugins, self signed certificates etc, it is encouraged to create your own Dockerfile:
 
@@ -97,7 +98,7 @@ FROM kpnnv/pyrandall:latest
 
 * A spec can consist of multiple simulate and validate steps which are executed over HTTP or Apache Kafka.
 * This could be expanded to brokers in general or websockets support.
-* Validate should executes assertions on the outputs of your application.
+* Validate should execute assertions against the state of your application.
 
 
 ## Documentation
@@ -125,3 +126,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+
+# Footnotes
+
+1. BDD is a software development process and automated tests are an outcome of that: https://cucumber.io/docs/bdd/.
+1. Read more about Event Sourcing here: https://martinfowler.com/eaaDev/EventSourcing.html
