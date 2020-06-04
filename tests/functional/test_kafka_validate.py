@@ -27,8 +27,6 @@ def test_error_on_connection_timeout(monkeypatch):
 @freeze_time("2012-01-14 14:33:12")
 @vcr.use_cassette("test_ingest_to_kafka")
 def test_received_no_events(monkeypatch, kafka_cluster_info):
-    monkeypatch.setenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-
     # run validate to consume a message from kafka
     # running following command:
     argv = MOCK_ARGV + ["v2_ingest_kafka_small.yaml"]
@@ -54,8 +52,6 @@ def produce_events():
 @freeze_time("2012-01-14 14:33:12")
 @vcr.use_cassette("test_ingest_to_kafka")
 def test_validate_unordered_passed(monkeypatch, kafka_cluster_info):
-    monkeypatch.setenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-
     # run validate to consume a message from kafka
     # running following command:
     argv = MOCK_ARGV + ["v2_ingest_kafka_small.yaml"]
