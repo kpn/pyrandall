@@ -27,7 +27,7 @@ def shelldon(command: str, stderr=False):
 def ensure_topic(topicname):
     # use this over admin client to ensure docker-compose file works
     returncode, stdout, stderr = shelldon(
-        "docker-compose exec -T kafka kafka-topics "
+        "/usr/bin/env docker-compose exec -T kafka kafka-topics "
         "--zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 "
         f"--create --topic {topicname} --if-not-exists --force",
         stderr=True,
