@@ -182,7 +182,7 @@ class ConfigFactory:
             self.config = self.from_env()
         if kafka_client == "consumer":
             self.config["group.id"] = "pyrandall-test"
-            self.config["auto.offset.reset"] = "end"
+            self.config["auto.offset.reset"] = "earliest"
             # self.config['debug'] = "topic,msg,broker"
             self.config["enable.partition.eof"] = "false"
         elif kafka_client == "producer":

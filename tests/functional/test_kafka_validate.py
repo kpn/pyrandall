@@ -51,15 +51,14 @@ def produce_events():
 
 @freeze_time("2012-01-14 14:33:12")
 @vcr.use_cassette("test_ingest_to_kafka")
-def test_validate_unordered_passed(monkeypatch, kafka_cluster_info):
+def test_validate_unordered_passed(kafka_cluster_info):
     # run validate to consume a message from kafka
     # running following command:
     argv = MOCK_ARGV + ["v2_ingest_kafka_small.yaml"]
 
     print(f"running {argv}")
     with pytest.raises(SystemExit) as context:
-        t = threading.Thread(target=produce_events)
-        t.start()
+        produce_events()
         cli.start(argv)
     if context.value.code == 2:
         pytest.fail(cli.argparse_error(argv))
