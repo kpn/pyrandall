@@ -11,7 +11,7 @@ from tests.conftest import vcr
 
 @pytest.fixture
 def reporter():
-    return Reporter().scenario("pytest example scenario")
+    return Reporter().create_and_track_resultset()
 
 
 @pytest.fixture

@@ -74,7 +74,19 @@ def pyrandall_format_http_request_equals_to_event(filename, data):
     return value will be asserted as expected value
     against the body of a HTTP response as defined in the yaml spec
 
-    called upon both any adapter (http or kafka)
+    called upon both the requests/http adapter
+
+    :return: bytes
+    """
+
+
+@hookspec(firstresult=True)
+def pyrandall_format_kafka_equals_to_event(filename, data):
+    """
+    return value will be asserted as expected value
+    against the consumed message from kafka as defined in the yaml spec
+
+    called upon the broker/kafka adapter
 
     :return: bytes
     """

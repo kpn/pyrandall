@@ -3,7 +3,10 @@ import shlex
 import subprocess
 import time
 
-from confluent_kafka import Consumer, TopicPartition
+from confluent_kafka import Consumer, Producer, TopicPartition
+from confluent_kafka.admin import AdminClient, NewTopic
+
+bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 
 
 def shelldon(command: str, stderr=False):
@@ -26,21 +29,29 @@ def shelldon(command: str, stderr=False):
 
 def ensure_topic(topicname):
     # use this over admin client to ensure docker-compose file works
-    returncode, stdout, stderr = shelldon(
-        "docker-compose exec -T kafka kafka-topics "
-        "--zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 "
-        f"--create --topic {topicname} --if-not-exists --force",
-        stderr=True,
-    )
-    assert 0 == returncode
-    assert "" == stderr
+    client = AdminClient({"bootstrap.servers": bootstrap_servers})
+    metadata = client.list_topics()
+    if topicname not in metadata.topics:
+        results = client.create_topics([NewTopic(topic=topicname, num_partitions=1, replication_factor=1)])
+        future = results[topicname]
+        future.result()
+
+
+class KafkaProducer(Producer):
+    def __init__(self, topic):
+        ensure_topic(topic)
+        self.topic = topic
+        super().__init__({"bootstrap.servers": bootstrap_servers})
+
+    def send(self, message):
+        self.produce(self.topic, message)
+        self.flush()
 
 
 class KafkaConsumer(Consumer):
     def __init__(self, topicname):
         # ensure_topic(topicname)
-        kafka = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-        super().__init__({"group.id": "pyrandall-tests", "bootstrap.servers": kafka})
+        super().__init__({"group.id": "pyrandall-pytest", "bootstrap.servers": bootstrap_servers})
         self.waiting_assignment = True
         self.topic = topicname
         self.topic_partition = TopicPartition(topic=self.topic, partition=0)

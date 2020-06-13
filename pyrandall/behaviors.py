@@ -37,3 +37,9 @@ def pyrandall_parse_broker_produce_template(filename, data):
 @pyrandall.hookimpl
 def pyrandall_format_http_request_equals_to_event(filename, data):
     return json.dumps(json.loads(data)).encode()
+
+
+@pyrandall.hookimpl
+def pyrandall_format_kafka_equals_to_event(filename, data):
+    # any fileformat will be compared in binary
+    return data.encode()

@@ -22,7 +22,7 @@ def spec():
 @vcr.use_cassette("test_commander_run_one_for_one")
 def test_commander_run_one_for_one(spec):
     reporter = MagicMock(Reporter(), unsafe=True)
-    reporter.scenario.return_value = MagicMock(ResultSet, unsafe=True)
+    reporter.create_and_track_resultset.return_value = MagicMock(ResultSet, unsafe=True)
 
     c = Commander(spec, Flags.BLOCKING_E2E)
     c.run(reporter)
