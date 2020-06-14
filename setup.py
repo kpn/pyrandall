@@ -21,7 +21,8 @@ setup(
         "curlify~=2.2.0",
         "confluent-kafka~=1.0",
         "deepdiff==3.3",
-        "pluggy~=0.13.0"
+        "pluggy~=0.13.0",
+        "Click~=7.0"
     ],
     tests_require=["pytest", "pytest_httpserver", "responses", "vcrpy", "freezegun"],
 )
