@@ -14,3 +14,5 @@ jobs:
       script: make travis-pr-build
     - stage: "Test"
       script: make travis-pr-test
+    - stage: "Docker publish"
+      script: ./publish.sh
