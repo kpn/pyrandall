@@ -20,7 +20,7 @@ setup(
         "Mako~=1.1.3",
         "curlify~=2.2.0",
         "confluent-kafka~=1.0",
-        "deepdiff==3.3",
+        "deepdiff==4.3",
         "pluggy~=0.13.0",
         "Click~=7.0"
     ],
