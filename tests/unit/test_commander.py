@@ -11,7 +11,7 @@ from tests.conftest import vcr
 @pytest.fixture
 def spec():
     builder = SpecBuilder(
-        specfile="one_event.yaml",
+        specfile=open("examples/scenarios/one_event.yaml"),
         dataflow_path="examples/",
         default_request_url="http://localhost:5000",
         schemas_url="http://localhost:8899/schemas/",
@@ -24,7 +24,7 @@ def test_commander_run_one_for_one(spec):
     reporter = MagicMock(Reporter(), unsafe=True)
     reporter.create_and_track_resultset.return_value = MagicMock(ResultSet, unsafe=True)
 
-    c = Commander(spec, Flags.BLOCKING_E2E)
+    c = Commander(spec, Flags.E2E)
     c.run(reporter)
 
     reporter.feature.assert_called_once_with("One event"),

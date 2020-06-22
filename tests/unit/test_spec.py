@@ -7,7 +7,7 @@ from pyrandall.types import BrokerKafkaSpec, RequestEventsSpec, RequestHttpSpec
 @pytest.fixture
 def feature():
     builder = SpecBuilder(
-        specfile="v2.yaml",
+        specfile=open("examples/scenarios/v2.yaml"),
         dataflow_path="examples/",
         default_request_url="http://localhost:5000",
         schemas_url="http://localhost:8899/schemas/",
@@ -15,14 +15,9 @@ def feature():
     return builder.feature()
 
 
-def test_loads_valid_scenario_yaml():
-    with pytest.raises(FileNotFoundError):
-        SpecBuilder("spec.yaml", dataflow_path="random_dir").feature()
-
-
 def test_request_url_missing():
     with pytest.raises(ValueError) as e:
-        SpecBuilder("v2.yaml", dataflow_path="examples/").feature()
+        SpecBuilder(open("examples/scenarios/v2.yaml"), dataflow_path="examples/").feature()
         expected = (
             "self.default_request_url is None. "
             "See README.md on how to configure a request URL."
@@ -73,7 +68,7 @@ def test_creates_executors_for_validators_only(feature):
 
 def test_parse_events_plugins():
     SpecBuilder(
-        specfile="v2.yaml",
+        specfile=open("examples/scenarios/v2.yaml"),
         dataflow_path="examples/",
         default_request_url="http://localhost:5000",
         schemas_url="http://localhost:8899/schemas/",

@@ -1,32 +1,30 @@
-from click.testing import CliRunner
-
-from pyrandall import cli
 from tests.conftest import vcr
 
 ARGV_RESPONSE_200 = [
     "--config",
     "examples/config/v1.json",
-    "simulate",
+    "-s",
     "examples/scenarios/http/simulate_200.yaml",
 ]
 ARGV_RESPONSE_400 = [
     "--config",
     "examples/config/v1.json",
-    "simulate",
+    "-s",
     "examples/scenarios/http/simulate_400.yaml",
 ]
 
 
-def test_execute_a_simulation_fails():
-    runner = CliRunner()
-    result = runner.invoke(cli.main, [], catch_exceptions=False)
+def test_execute_a_simulation_fails(pyrandall_cli):
+    result = pyrandall_cli.invoke([
+        "--config",
+        "examples/config/v1.json"
+    ])
     assert 'Usage: main' in result.output
-    assert result.exit_code == 0
+    assert result.exit_code == 2
 
-def test_simulate_json_response_200():
+def test_simulate_json_response_200(pyrandall_cli):
     with vcr.use_cassette("test_simulate_json_response_200") as cassette:
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ARGV_RESPONSE_200, catch_exceptions=False)
+        result = pyrandall_cli.invoke(ARGV_RESPONSE_200)
         assert 'Usage: main' not in result.output
         assert result.exit_code == 0
 
@@ -37,10 +35,9 @@ def test_simulate_json_response_200():
         assert cassette.all_played
         # not all request had the expected status code (see assertions)
 
-def test_simulate_json_response_400():
+def test_simulate_json_response_400(pyrandall_cli):
     with vcr.use_cassette("test_simulate_json_response_400") as cassette:
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ARGV_RESPONSE_400, catch_exceptions=False)
+        result = pyrandall_cli.invoke(ARGV_RESPONSE_400)
         assert 'Usage: main' not in result.output
         assert result.exit_code == 1
 

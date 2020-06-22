@@ -36,6 +36,7 @@ class V2Factory(object):
 
 
 class SpecBuilder:
+
     def __init__(self, specfile, **kwargs):
         self.factory = V2Factory(**kwargs)
         self.specfile = specfile

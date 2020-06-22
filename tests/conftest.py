@@ -1,8 +1,11 @@
 import os
 
+import pyrandall.cli
+
 import vcr
 import pytest
 
+from click.testing import CliRunner
 from confluent_kafka.admin import AdminClient, ClusterMetadata
 
 defaults = ["method", "scheme", "host", "port", "path", "query"]
@@ -25,3 +28,14 @@ def kafka_cluster_info() -> ClusterMetadata:
     cluster = admin.list_topics()
     assert ('{1: BrokerMetadata(1, %s)}' % kafka) == str(cluster.brokers)
     return cluster
+
+@pytest.fixture
+def pyrandall_cli():
+    return PyrandallCli()
+
+
+class PyrandallCli():
+
+    def invoke(self, command):
+        runner = CliRunner()
+        return runner.invoke(pyrandall.cli.main, command, catch_exceptions=False)

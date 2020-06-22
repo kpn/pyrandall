@@ -1,46 +1,54 @@
+import os
 import pytest
-from click.testing import CliRunner
+from freezegun import freeze_time
 
-from pyrandall import cli
+import threading
 from tests.conftest import vcr
+from tests.helper import KafkaProducer
+from pyrandall.kafka import KafkaSetupError
 
-CONFIG = "examples/config/v1.json"
-ARGV_HTTP_VALIDATE_1_OK = [
+TOPIC_1 = "pyrandall-tests-validate-1"
+TOPIC_2 = "pyrandall-tests-validate-2"
+
+MOCK_ARGV = [
     "--config",
-    CONFIG,
-    "validate",
-    "examples/scenarios/http/validate_ok_status_code.yaml",
+    "examples/config/v1.json",
+    "-V"
 ]
-ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL = [
-    "--config",
-    CONFIG,
-    "validate",
-    "examples/scenarios/http/validate_bad_status_code.yaml",
-]
+ARGV_SMALL = MOCK_ARGV + ["examples/scenarios/v2_ingest_kafka_small.yaml"]
 
 
-def test_execute_a_sanitytest_fails():
-    runner = CliRunner()
-    result = runner.invoke(cli.main, [], catch_exceptions=False)
-    assert 'Usage: main' in result.output
+def test_error_on_connection_timeout(monkeypatch, pyrandall_cli):
+    monkeypatch.setenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:3330")
+    with pytest.raises(KafkaSetupError) as e:
+        pyrandall_cli.invoke(ARGV_SMALL)
+
+
+# freeze time in order to hardcode timestamps
+@freeze_time("2012-01-14 14:33:12")
+@vcr.use_cassette("test_ingest_to_kafka")
+def test_received_no_events(monkeypatch, kafka_cluster_info, pyrandall_cli):
+    result = pyrandall_cli.invoke(ARGV_SMALL)
+    # exit code should be 1 (error)
+    assert 'Usage: main' not in result.output
+    print(result.output)
+    assert result.exit_code == 1
+
+def produce_events():
+    # produce the events
+    producer = KafkaProducer(TOPIC_1)
+    producer.send(b'{"click": "three"}')
+    producer.send(b'{"click": "one"}')
+    producer.send(b'{"click": "two"}')
+
+    producer = KafkaProducer(TOPIC_2)
+    producer.send(b'{"click": "three"}')
+
+@freeze_time("2012-01-14 14:33:12")
+@vcr.use_cassette("test_ingest_to_kafka")
+def test_validate_unordered_passed(kafka_cluster_info, pyrandall_cli):
+    produce_events()
+    result = pyrandall_cli.invoke(ARGV_SMALL)
+    # exit code should be 1 (error)
+    assert 'Usage: main' not in result.output
     assert result.exit_code == 0
-
-
-def test_validate_assertions_pass():
-    with vcr.use_cassette("test_validate_assertions_pass") as cassette:
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ARGV_HTTP_VALIDATE_1_OK, catch_exceptions=False)
-        assert 'Usage: main' not in result.output
-        assert result.exit_code == 0
-
-        assert cassette.all_played
-
-def test_validate_fail_status_code():
-    with vcr.use_cassette("test_validate_fail_status_code") as cassette:
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL, catch_exceptions=False)
-
-        assert 'Usage: main' not in result.output
-        assert result.exit_code == 1
-
-        assert cassette.all_played
