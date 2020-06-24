@@ -17,15 +17,17 @@ from pyrandall.types import Flags
 @click.command(name="pyrandall")
 @click.argument("specfiles", type=click.File('r'), nargs=-1)
 @click.option("-c", "--config", 'config_file', type=click.File('r'), default="pyrandall_config.json", help="path to json file for pyrandall config.")
-@click.option("-s", "--only-simulate", 'command_flag', flag_value=Flags.SIMULATE)
-@click.option("-V", "--only-validate", 'command_flag', flag_value=Flags.VALIDATE)
-@click.option("-e", "--everything", 'command_flag', flag_value=Flags.E2E, default=True)
+@click.option("-s", "--only-simulate", 'command_flag', flag_value=Flags.SIMULATE, help="filters the spec and runs simulate steps")
+@click.option("-V", "--only-validate", 'command_flag', flag_value=Flags.VALIDATE, help="filters the spec and runs simulate steps")
+@click.option("-e", "--everything", 'command_flag', flag_value=Flags.E2E, default=True, help="(default) run simulate, then validate synchronously")
 @click.option("-d", "--dry-run", 'filter_flag', flag_value=Flags.DESCRIBE)
 @click.help_option()
 @click.version_option(version=const.get_version())
 def main(config_file, command_flag, filter_flag, specfiles):
     """
     pyrandall a test framework oriented around data validation instead of code
+
+    Example: pyrandall scenarios/foobar.yaml
     """
     # quickfix: Click will bypass argument callback when nargs=-1
     # raising these click exceptions will translate to exit(2)
