@@ -14,6 +14,10 @@ from pyrandall.spec import SpecBuilder
 from pyrandall.types import Flags
 
 
+# if this fails you have not installed the package (see setup.py)
+VERSION = open(const.VERSION_PATH).read().strip()
+
+
 @click.command(name="pyrandall")
 @click.argument("specfiles", type=click.File('r'), nargs=-1)
 @click.option("-c", "--config", 'config_file', type=click.File('r'), default="pyrandall_config.json", help="path to json file for pyrandall config.")
@@ -22,6 +26,7 @@ from pyrandall.types import Flags
 @click.option("-e", "--everything", 'command_flag', flag_value=Flags.E2E, default=True)
 @click.option("-d", "--dry-run", 'filter_flag', flag_value=Flags.DESCRIBE)
 @click.help_option()
+@click.version_option(version=VERSION)
 def main(config_file, command_flag, filter_flag, specfiles):
     """
     pyrandall a test framework oriented around data validation instead of code

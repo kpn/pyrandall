@@ -1,6 +1,10 @@
+import shutil
+from os import path
 from setuptools import find_packages, setup
 
 __version__ = open("VERSION").read().strip()
+# Also see MANIFEST.ini when changing paths
+shutil.copy('VERSION', path.join('pyrandall', 'files', 'VERSION'))
 
 
 setup(

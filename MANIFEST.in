@@ -1,7 +1,8 @@
-include pyrandall/schemas/scenario/v2.yaml
 include README.md
 include CHANGELOG
 include VERSION
+include pyrandall/files/VERSION
+include pyrandall/files/schemas/scenario/v2.yaml
 
 exclude Makefile
 exclude dev_requirements.txt

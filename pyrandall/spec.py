@@ -5,6 +5,7 @@ import jsonschema
 import yaml
 
 import pyrandall.behaviors
+from pyrandall import const
 from pyrandall.exceptions import InvalidSchenarioVersion
 from pyrandall.types import (
     Adapter,
@@ -15,13 +16,6 @@ from pyrandall.types import (
 )
 
 from .network import join_urlpath
-
-
-# Constants to resolve private schema files
-DIR_PYRANDALL_HOME = os.path.dirname(os.path.abspath(__file__))
-SCHEMAS_SCENARIO_V2 = os.path.join(DIR_PYRANDALL_HOME, "schemas/scenario/v2.yaml")
-VERSION_SCENARIO_V2 = "scenario/v2"
-VERSIONS = [VERSION_SCENARIO_V2]
 
 
 class V2Factory(object):
@@ -49,15 +43,15 @@ class SpecBuilder:
         # TODO: prevent reading sensitive files from filesystem
         data = yaml.load(self.specfile, Loader=yaml.FullLoader)
         # implicitly assume scenario v2 schema
-        version = data.get("version", VERSION_SCENARIO_V2)
-        if version not in VERSIONS:
-            raise InvalidSchenarioVersion(VERSIONS)
+        version = data.get("version", const.VERSION_SCENARIO_V2)
+        if version not in const.SCHEMA_VERSIONS:
+            raise InvalidSchenarioVersion(const.SCHEMA_VERSIONS)
         # raises errors if unvalid to jsonschema
         jsonschema.validate(data, self.scenario_v2_schema())
         return data
 
     def scenario_v2_schema(self):
-        with open(SCHEMAS_SCENARIO_V2) as f:
+        with open(const.SCHEMA_V2_PATH) as f:
             return yaml.load(f.read(), Loader=yaml.FullLoader)
 
 
