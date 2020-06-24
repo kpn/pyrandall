@@ -14,26 +14,26 @@ from pyrandall.spec import SpecBuilder
 from pyrandall.types import Flags
 
 
-def validate_specfiles(ctx, param, value):
-    if len(value) == 0:
-        raise click.BadParameter('expecting at least one argument')
-
-    if len(value) > 1:
-        raise click.UsageError("passing multiple arguments is not supported yet")
-
-
-@click.command()
-@click.pass_context
+@click.command(name="pyrandall")
+@click.argument("specfiles", type=click.File('r'), nargs=-1)
 @click.option("-c", "--config", 'config_file', type=click.File('r'), default="pyrandall_config.json", help="path to json file for pyrandall config.")
 @click.option("-s", "--only-simulate", 'command_flag', flag_value=Flags.SIMULATE)
 @click.option("-V", "--only-validate", 'command_flag', flag_value=Flags.VALIDATE)
 @click.option("-e", "--everything", 'command_flag', flag_value=Flags.E2E, default=True)
 @click.option("-d", "--dry-run", 'filter_flag', flag_value=Flags.DESCRIBE)
-@click.argument("specfiles", type=click.File('r'), nargs=-1, callback=validate_specfiles)
-def main(ctx, config_file, command_flag, filter_flag, specfiles):
+@click.help_option()
+def main(config_file, command_flag, filter_flag, specfiles):
     """
     pyrandall a test framework oriented around data validation instead of code
     """
+    # quickfix: Click will bypass argument callback when nargs=-1
+    # raising these click exceptions will translate to exit(2)
+    if not specfiles:
+        raise click.BadParameter('expecting at least one argument for specfiles')
+
+    if len(specfiles) > 1:
+        raise click.UsageError("passing multiple specfiles is not supported yet")
+
     config = {}
     if config_file:
         config = json.load(config_file)
@@ -77,7 +77,6 @@ def build_basedir(specfile):
     for x in itertools.takewhile(lambda x: x != const.DIRNAME_SCENARIOS, parts):
         out.append(x)
     return os.path.abspath('/'.join(out))
-
 
 if __name__ == "__main__":
     main()
