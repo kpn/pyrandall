@@ -8,8 +8,6 @@ interactions:
       - gzip, deflate
       Connection:
       - keep-alive
-      User-Agent:
-      - pyrandall
     method: GET
     uri: http://localhost:5000/foo/1
   response:
@@ -30,7 +28,7 @@ interactions:
       Content-Type:
       - text/html
       Date:
-      - Sat, 27 Jun 2020 09:31:48 GMT
+      - Sat, 27 Jun 2020 11:38:40 GMT
       Server:
       - Werkzeug/0.16.0 Python/3.7.5
     status:
