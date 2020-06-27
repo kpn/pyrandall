@@ -5,17 +5,6 @@ import pytest
 from pyrandall.executors import RequestHttp, RequestHttpEvents
 from pyrandall.spec import RequestEventsSpec, RequestHttpSpec
 from pyrandall.types import Assertion, ExecutionMode
-from tests.conftest import vcr
-
-
-@pytest.fixture
-def reporter():
-    return MagicMock(unsafe=True)
-
-
-@pytest.fixture
-def reporter_1():
-    return MagicMock(assertion=MagicMock(spec_set=Assertion), unsafe=True)
 
 
 STATUS_CODE_ASSERTION = {"status_code": 201}
@@ -29,7 +18,7 @@ def simulator_1():
         url="http://localhost:5000/users",
         body=b'{"foo": "bar"}',
         method="POST",
-        headers=[],
+        headers={},
     )
     return RequestHttp(spec)
 
@@ -42,7 +31,7 @@ def simulator_2():
         url="http://localhost:5000/users",
         body=b"",
         method="POST",
-        headers=[],
+        headers={},
     )
     return RequestHttp(spec)
 
@@ -55,7 +44,7 @@ def simulator_3():
         url="http://localhost:5000/users",
         body=b"",
         method="POST",
-        headers=[],
+        headers={},
     )
     r2 = RequestHttpSpec(
         execution_mode=ExecutionMode.SIMULATING,
@@ -63,13 +52,13 @@ def simulator_3():
         url="http://localhost:5000/users",
         body=b'{"foo": "bar"}',
         method="POST",
-        headers=[],
+        headers={},
     )
     spec = RequestEventsSpec(requests=[r1, r2])
     return RequestHttpEvents(spec)
 
 
-def test_simulate__post_201_repsonse(simulator_1, reporter):
+def test_simulate__post_201_repsonse(simulator_1, reporter, vcr):
     with vcr.use_cassette("test_http_executor_simulate_post_201") as cassette:
         result = simulator_1.execute(reporter)
 
@@ -85,7 +74,7 @@ def test_simulate__post_201_repsonse(simulator_1, reporter):
         assert result
 
 
-def test_simulate_post_400_response(simulator_2, reporter):
+def test_simulate_post_400_response(simulator_2, reporter, vcr):
     with vcr.use_cassette("test_http_executor_simulate_post_400_response") as cassette:
         result = simulator_2.execute(reporter)
 
@@ -108,7 +97,7 @@ def test_simulate_fails_zero_requests(reporter):
     assert not result
 
 
-def test_simulate_post_200_and_400(simulator_3, reporter):
+def test_simulate_post_200_and_400(simulator_3, reporter, vcr):
     with vcr.use_cassette("test_http_executor_simulate_post_201_and_400") as cassette:
         result = simulator_3.execute(reporter)
 

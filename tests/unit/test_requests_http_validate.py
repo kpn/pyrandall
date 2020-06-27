@@ -6,7 +6,6 @@ from pyrandall.executors import RequestHttp
 from pyrandall.reporter import Reporter
 from pyrandall.spec import RequestHttpSpec
 from pyrandall.types import Assertion, ExecutionMode
-from tests.conftest import vcr
 
 
 @pytest.fixture
@@ -26,7 +25,7 @@ def validator_1():
         url="http://localhost:5000/foo/1",
         events=[],
         method="GET",
-        headers=[],
+        headers={},
         assertions={"status_code": 404},
     )
     return RequestHttp(spec)
@@ -38,7 +37,7 @@ def validator_3():
         execution_mode=ExecutionMode.VALIDATING,
         events=[],
         method="GET",
-        headers=[],
+        headers={},
         url="http://localhost:5000/foo/2",
         assertions={"body": b'{"foo": 2, "bar": false}'},
     )
@@ -51,7 +50,7 @@ def validator_4():
         execution_mode=ExecutionMode.VALIDATING,
         events=[],
         method="GET",
-        headers=[],
+        headers={},
         url="http://localhost:5000/foo/2",
         assertions={"status_code": 201, "body": b'{"foo": 2, "bar": false}'},
     )
@@ -64,14 +63,14 @@ def validator_5():
         execution_mode=ExecutionMode.VALIDATING,
         events=[],
         method="GET",
-        headers=[],
+        headers={},
         url="http://localhost:5000/foo/2",
         assertions={"status_code": 201, "body": b'{"foo": 2'},
     )
     return RequestHttp(spec)
 
 
-def test_validate_makes_get(validator_1, reporter):
+def test_validate_makes_get(validator_1, reporter, vcr):
     with vcr.use_cassette("test_http_executor_validate_makes_get") as cassette:
         result = validator_1.execute(reporter)
 
@@ -96,7 +95,7 @@ def test_executor_fails_zero_assertions(reporter):
     assert result is False
 
 
-def test_validate_makes_get_and_matches_body(validator_3, reporter):
+def test_validate_makes_get_and_matches_body(validator_3, reporter, vcr):
     with vcr.use_cassette(
         "test_http_executor_validate_makes_get_and_matches_body"
     ) as cassette:
@@ -114,7 +113,7 @@ def test_validate_makes_get_and_matches_body(validator_3, reporter):
         assert result
 
 
-def test_validate__matches_body_not_status(validator_4, reporter):
+def test_validate__matches_body_not_status(validator_4, reporter, vcr):
     with vcr.use_cassette(
         "test_http_executor_validate__matches_body_and_status"
     ) as cassette:
@@ -133,7 +132,7 @@ def test_validate__matches_body_not_status(validator_4, reporter):
 
 
 @patch("pyrandall.executors.requests_http.Assertion")
-def test_validate_body_and_status_do_not_match(assertion, validator_5, reporter_1):
+def test_validate_body_and_status_do_not_match(assertion, validator_5, reporter_1, vcr):
     with vcr.use_cassette(
         "test_http_executor_validate_body_and_status_do_not_match"
     ) as cassette:

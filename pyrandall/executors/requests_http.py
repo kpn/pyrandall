@@ -1,6 +1,7 @@
 import requests
 
 from pyrandall.types import Assertion
+from pyrandall import const
 
 from .common import Executor
 
@@ -9,7 +10,7 @@ class RequestHttp(Executor):
     def __init__(self, spec, *args, **kwargs):
         super().__init__()
         self.execution_mode = spec.execution_mode
-        self.spec = spec
+        self.spec = self.add_custom_headers(spec)
 
     def execute(self, reporter):
         spec = self.spec
@@ -41,6 +42,11 @@ class RequestHttp(Executor):
 
         # TODO: depricate this, not functioally needed anymore
         return all([a.passed() for a in assertions])
+
+    def add_custom_headers(self, spec):
+        version = const.get_version()
+        spec.headers['User-Agent'] = f"{const.PYRANDALL_USER_AGENT}/{version}"
+        return spec
 
     # TODO: move this to reporter
     def create_jsondiff(self, expected, actual):

@@ -1,6 +1,6 @@
 interactions:
 - request:
-    body: null
+    body: '{"foo": "bar"}'
     headers:
       Accept:
       - '*/*'
@@ -8,23 +8,25 @@ interactions:
       - gzip, deflate
       Connection:
       - keep-alive
-      User-Agent:
-      - python-requests/2.23.0
-    method: GET
-    uri: http://localhost:5000/kv/pyrandall/avro_ok
-  response:
-    body:
-      string: '{"Avro": "ok"}'
-    headers:
       Content-Length:
       - '14'
+      User-Agent:
+      - pyrandall/1.0.0
+    method: POST
+    uri: http://localhost:5000/users
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '0'
       Content-Type:
       - text/html; charset=utf-8
       Date:
-      - Mon, 16 Sep 2019 09:54:44 GMT
+      - Sat, 27 Jun 2020 10:26:54 GMT
       Server:
-      - Werkzeug/0.15.6 Python/3.7.4
+      - Werkzeug/0.16.0 Python/3.7.5
     status:
-      code: 200
-      message: OK
+      code: 201
+      message: CREATED
 version: 1

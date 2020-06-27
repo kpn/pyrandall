@@ -2,7 +2,6 @@ import os
 import pytest
 from freezegun import freeze_time
 
-from tests.conftest import vcr
 from tests.helper import KafkaConsumer
 
 
@@ -23,9 +22,7 @@ def test_fail_on_invaild_schema(pyrandall_cli):
     assert result.exit_code == 4
 
 
-# freeze time in order to hardcode timestamps
 @freeze_time("2012-01-14 14:33:12")
-@vcr.use_cassette("test_ingest_to_kafka")
 def test_simulate_produces_event(kafka_cluster_info, pyrandall_cli):
     consumer = KafkaConsumer(TEST_TOPIC)
     try:

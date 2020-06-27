@@ -1,23 +1,47 @@
 import os
+from unittest.mock import MagicMock
 
 import pyrandall.cli
 
-import vcr
+from vcr import VCR
 import pytest
 
 from click.testing import CliRunner
 from confluent_kafka.admin import AdminClient, ClusterMetadata
 
-defaults = ["method", "scheme", "host", "port", "path", "query"]
-vcr = vcr.VCR(
-    cassette_library_dir="tests/fixtures/vcr",
-    # record_mode =  [once, new_episodes, none, all]
-    # https://vcrpy.readthedocs.io/en/latest/usage.html#record-modes
-    record_mode=os.environ.get("VCR_MODE", "once"),
-    match_on=(defaults + ["body", "headers"]),
-    path_transformer=vcr.VCR.ensure_suffix(".yaml"),
-)
 
+@pytest.fixture
+def vcr_headers_filter():
+    return [("User-Agent", None)]
+
+@pytest.fixture
+def vcr_match_on():
+    return ["body", "headers"]
+
+@pytest.fixture
+def vcr(request):
+    defaults = ["method", "scheme", "host", "port", "path", "query"]
+    defaults += request.getfixturevalue("vcr_match_on")
+
+    # record_mode = {once, new_episodes, none, all}
+    # https://vcrpy.readthedocs.io/en/latest/usage.html#record-modes
+    return VCR(
+        filter_headers=request.getfixturevalue("vcr_headers_filter"),
+        record_mode=os.environ.get("VCR_MODE", "once"),
+        cassette_library_dir="tests/fixtures/vcr",
+        match_on=defaults,
+        path_transformer=VCR.ensure_suffix(".yaml"),
+    )
+
+# Internal Class Mocks, Stubs etc.
+
+@pytest.fixture
+def reporter():
+    return MagicMock(unsafe=True)
+
+
+# Helper functions
+# for example: file, http, kafka utilities or Cli Runner
 
 @pytest.fixture
 def kafka_cluster_info() -> ClusterMetadata:
@@ -39,3 +63,5 @@ class PyrandallCli():
     def invoke(self, command):
         runner = CliRunner()
         return runner.invoke(pyrandall.cli.main, command, catch_exceptions=False)
+
+

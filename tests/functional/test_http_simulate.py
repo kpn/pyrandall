@@ -1,5 +1,3 @@
-from tests.conftest import vcr
-
 ARGV_RESPONSE_200 = [
     "--config",
     "examples/config/v1.json",
@@ -22,7 +20,7 @@ def test_execute_a_simulation_fails(pyrandall_cli):
     assert 'Usage: pyrandall' in result.output
     assert result.exit_code == 2
 
-def test_simulate_json_response_200(pyrandall_cli):
+def test_simulate_json_response_200(pyrandall_cli, vcr):
     with vcr.use_cassette("test_simulate_json_response_200") as cassette:
         result = pyrandall_cli.invoke(ARGV_RESPONSE_200)
         assert 'Usage: pyrandall' not in result.output
@@ -35,7 +33,7 @@ def test_simulate_json_response_200(pyrandall_cli):
         assert cassette.all_played
         # not all request had the expected status code (see assertions)
 
-def test_simulate_json_response_400(pyrandall_cli):
+def test_simulate_json_response_400(pyrandall_cli, vcr):
     with vcr.use_cassette("test_simulate_json_response_400") as cassette:
         result = pyrandall_cli.invoke(ARGV_RESPONSE_400)
         assert 'Usage: pyrandall' not in result.output

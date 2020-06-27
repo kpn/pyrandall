@@ -13,5 +13,11 @@ VERSION_SCENARIO_V2 = "scenario/v2"
 SCHEMA_VERSIONS = [VERSION_SCENARIO_V2]
 
 # Package version
-_version_path = path.join("files", "VERSION")
-VERSION_PATH = path.join(DIR_PYRANDALL_HOME, _version_path)
+VERSION_PATH = path.join("files", "VERSION")
+
+PYRANDALL_USER_AGENT = "pyrandall"
+
+def get_version():
+    version_path = path.join(DIR_PYRANDALL_HOME, VERSION_PATH)
+    # if this fails you have not installed the package (see setup.py)
+    return open(version_path).read().strip()

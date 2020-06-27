@@ -10,8 +10,6 @@ interactions:
       - keep-alive
       Content-Length:
       - '13'
-      User-Agent:
-      - python-requests/2.23.0
       content-type:
       - application/json
     method: POST
@@ -34,9 +32,9 @@ interactions:
       Content-Type:
       - text/html
       Date:
-      - Mon, 16 Sep 2019 09:54:43 GMT
+      - Sat, 27 Jun 2020 09:55:09 GMT
       Server:
-      - Werkzeug/0.15.6 Python/3.7.4
+      - Werkzeug/0.16.0 Python/3.7.5
     status:
       code: 404
       message: NOT FOUND
