@@ -10,11 +10,6 @@ from pyrandall.types import Assertion, ExecutionMode
 
 
 @pytest.fixture
-def reporter():
-    return Reporter().scenario("pytest example scenario")
-
-
-@pytest.fixture
 def reporter_1():
     return MagicMock(assertion=MagicMock(spec_set=Assertion), unsafe=True)
 
@@ -32,19 +27,10 @@ def new_executor(assertions):
 MESSAGE_JSON = b'{\n  "uri": "iphone://settings/updates",\n  "session": "111",\n  "timestamp": 2\n}\n'
 
 
-# @mock.patch("pyrandall.executors.broker_kafka.KafkaConn.consume")
-# def test_executor_fails_zero_assertions(kafka_mock, reporter_1):
-#     spec = MagicMock(
-#         unsafe=True, execution_mode=ExecutionMode.VALIDATING, assertions={}
-#     )
-#     executor = BrokerKafka(spec)
-#     result = executor.execute(reporter_1)
-#     reporter_1.assertion_failed.assert_called_with(mock.ANY)
-
-
 # given consumer returns a list with 0 messages
+@mock.patch("pyrandall.executors.broker_kafka.KafkaConn.check_connection", return_value=True)
 @mock.patch("pyrandall.executors.broker_kafka.KafkaConn.consume", return_value=[])
-def test_validate_fail_zero_messages(kafka_mock, reporter_1):
+def test_validate_fail_zero_messages(_consume, _check, reporter_1):
     # when the expected value is 1
     validator = new_executor({"total_events": 1})
     # and it is executed
@@ -55,10 +41,11 @@ def test_validate_fail_zero_messages(kafka_mock, reporter_1):
     )
 
 
+@mock.patch("pyrandall.executors.broker_kafka.KafkaConn.check_connection", return_value=True)
 @mock.patch("pyrandall.executors.broker_kafka.KafkaConn.consume")
-def test_validate_fail_one_messages_body(kafka_mock, reporter_1):
+def test_validate_fail_one_messages_body(consume, _check, reporter_1):
     # given a value that is empty json
-    kafka_mock.return_value = [{"value": b"{}"}]
+    consume.return_value = [{"value": b"{}"}]
     # and a assertion on a full example json
     validator = new_executor(
         {"total_events": 1, "unordered": [{"value": MESSAGE_JSON}]}
@@ -69,10 +56,11 @@ def test_validate_fail_one_messages_body(kafka_mock, reporter_1):
     reporter_1.assertion_failed.assert_called_with(mock.ANY, "unordered events")
 
 
+@mock.patch("pyrandall.executors.broker_kafka.KafkaConn.check_connection", return_value=True)
 @mock.patch("pyrandall.executors.broker_kafka.KafkaConn.consume")
-def test_validate_matches_all(kafka_mock, reporter_1):
+def test_validate_matches_all(consume, _check, reporter_1):
     # given a message with bytes json
-    kafka_mock.return_value = [MESSAGE_JSON]
+    consume.return_value = [MESSAGE_JSON]
     # and validators that asserts 1 message and 1 message value
     validator = new_executor(
         {"total_events": 1, "unordered": [MESSAGE_JSON]}
