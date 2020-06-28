@@ -42,6 +42,15 @@ def test_too_much_specfiles_arg(pyrandall_cli):
     assert 'passing multiple specfiles is not supported yet' in result.output
     assert result.exit_code == 2
 
+def test_fail_directory_specfile_arg(pyrandall_cli):
+    result = pyrandall_cli.invoke([
+        "--config", "examples/config/v1.json",
+        "examples/scenarios"
+    ])
+    assert 'Usage: pyrandall' in result.output
+    assert 'passing directory path is not supported yet' in result.output
+    assert result.exit_code == 2
+
 def test_fail_on_invaild_specfile_jsonschema(pyrandall_cli):
     result = pyrandall_cli.invoke([
         "--config",

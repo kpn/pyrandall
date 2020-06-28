@@ -37,6 +37,10 @@ def main(config_file, command_flag, filter_flag, specfiles):
     if len(specfiles) > 1:
         raise click.UsageError("passing multiple specfiles is not supported yet")
 
+    specfile = specfiles[0]
+    if os.path.isdir(specfile):
+        raise click.UsageError("passing directory path is not supported yet")
+
     config = {}
     if config_file:
         config = json.load(config_file)
@@ -46,7 +50,6 @@ def main(config_file, command_flag, filter_flag, specfiles):
         filter_flag = Flags.NOOP
 
     flags = command_flag | filter_flag
-    specfile = specfiles[0]
     try:
         run_command(config, flags, specfile)
     except jsonschema.exceptions.ValidationError as e:
