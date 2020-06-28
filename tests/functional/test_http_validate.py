@@ -17,13 +17,6 @@ ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL = [
 ]
 
 
-def test_execute_a_sanitytest_fails():
-    runner = CliRunner()
-    result = runner.invoke(cli.main, [], catch_exceptions=False)
-    assert 'Usage: pyrandall' in result.output
-    assert result.exit_code == 2
-
-
 def test_validate_assertions_pass(vcr):
     with vcr.use_cassette("test_validate_assertions_pass") as cassette:
         runner = CliRunner()

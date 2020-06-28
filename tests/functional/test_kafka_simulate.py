@@ -6,20 +6,12 @@ from tests.helper import KafkaConsumer
 
 
 TEST_TOPIC = "pyrandall-tests-e2e"
-
-MOCK_ARGV = [
+ARGV_SMALL = [
     "--config",
     "examples/config/v1.json",
-    "-s"
+    "-s",
+    "examples/scenarios/v2_ingest_kafka_small.yaml"
 ]
-ARGV_INVALID = MOCK_ARGV + ["examples/scenarios/v2_ingest_kafka_invalid.yaml"]
-ARGV_SMALL = MOCK_ARGV + ["examples/scenarios/v2_ingest_kafka_small.yaml"]
-
-
-def test_fail_on_invaild_schema(pyrandall_cli):
-    result = pyrandall_cli.invoke(ARGV_INVALID)
-    assert 'Failed validating' in result.output
-    assert result.exit_code == 4
 
 
 @freeze_time("2012-01-14 14:33:12")

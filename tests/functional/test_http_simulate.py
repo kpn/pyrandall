@@ -12,14 +12,6 @@ ARGV_RESPONSE_400 = [
 ]
 
 
-def test_execute_a_simulation_fails(pyrandall_cli):
-    result = pyrandall_cli.invoke([
-        "--config",
-        "examples/config/v1.json"
-    ])
-    assert 'Usage: pyrandall' in result.output
-    assert result.exit_code == 2
-
 def test_simulate_json_response_200(pyrandall_cli, vcr):
     with vcr.use_cassette("test_simulate_json_response_200") as cassette:
         result = pyrandall_cli.invoke(ARGV_RESPONSE_200)

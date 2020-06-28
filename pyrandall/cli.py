@@ -44,11 +44,14 @@ def main(config_file, command_flag, filter_flag, specfiles):
     # translate None to NO OP Flag
     if filter_flag is None:
         filter_flag = Flags.NOOP
+
     flags = command_flag | filter_flag
+    specfile = specfiles[0]
     try:
-        run_command(config, flags, specfiles[0])
-    except jsonschema.exceptions.ValidationError:
-        print("Failed validating input yaml")
+        run_command(config, flags, specfile)
+    except jsonschema.exceptions.ValidationError as e:
+        click.echo(f"Error on validating specfile {specfile} with jsonschema, given error:", err=True)
+        click.echo(e, err=True)
         exit(4)
 
 
