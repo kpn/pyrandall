@@ -37,7 +37,7 @@ class Commander:
             # 2. call output interface
             reporter.scenario(scenario.description)
 
-            if self.flags & Flags.SIMULATE:
+            if self.flags.has_simulate():
                 reporter.simulate()
                 resultset = reporter.create_and_track_resultset()
                 for spec in scenario.simulate_tasks:
@@ -45,7 +45,7 @@ class Commander:
                     reporter.run_task(e.represent())
                     e.execute(resultset)
 
-            if self.flags & Flags.VALIDATE:
+            if self.flags.has_validate():
                 reporter.validate()
                 resultset = reporter.create_and_track_resultset()
                 for spec in scenario.validate_tasks:

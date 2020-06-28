@@ -2,6 +2,12 @@ interactions:
 - request:
     body: null
     headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
       Content-Length:
       - '0'
     method: POST
@@ -23,15 +29,21 @@ interactions:
       Content-Type:
       - text/html
       Date:
-      - Mon, 16 Sep 2019 09:54:45 GMT
+      - Sat, 27 Jun 2020 09:31:48 GMT
       Server:
-      - Werkzeug/0.15.6 Python/3.7.4
+      - Werkzeug/0.16.0 Python/3.7.5
     status:
       code: 400
       message: BAD REQUEST
 - request:
     body: '{"foo": "bar"}'
     headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
       Content-Length:
       - '14'
     method: POST
@@ -45,9 +57,9 @@ interactions:
       Content-Type:
       - text/html; charset=utf-8
       Date:
-      - Mon, 16 Sep 2019 09:54:45 GMT
+      - Sat, 27 Jun 2020 09:31:48 GMT
       Server:
-      - Werkzeug/0.15.6 Python/3.7.4
+      - Werkzeug/0.16.0 Python/3.7.5
     status:
       code: 201
       message: CREATED

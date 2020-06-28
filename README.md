@@ -14,19 +14,33 @@ pip install flask
 python stubserver.py
 ```
 
+pyrandall follows conventions when looking up files defined in the spec.
+This is an example directory structure:
+
+* `results/` is used for lookups by `assertions` Example:
+  `- { equals_to_event: word_count.json }`
+* `events/` is used for lookups when files are referenced in `simulate`
+
+* `scenarios/` can only contain yaml specfiles of the supported json schema.
+
+```
+# Run both simulate and validate
+./examples/pyrandall scenarios/v2.yaml
+```
+
 ```
 # Simulate events from examples/scenarios/v2.yaml and files found in examples/events
-./examples/pyrandall simulate v2.yaml
+./examples/pyrandall --only-simulate scenarios/v2.yaml
 ```
 
 ```
 # Validate results from examples/scenarios/v2.yaml and files found in examples/results
-./examples/pyrandall validate v2.yaml
+./examples/pyrandall --only-validate scenarios/v2.yaml
 ```
 
 # Example of scenario/v2 schema
 
-The input yaml is validated with jsonschema, the schema can be found here [pyrandall/schemas/scenario/v2.yaml](https://github.com/kpn/pyrandall/tree/master/pyrandall/schemas/scenario/v2.yaml).
+The input yaml is validated with jsonschema, the schema can be found here [pyrandall/files/schemas/scenario/v2.yaml](https://github.com/kpn/pyrandall/tree/master/pyrandall/files/schemas/scenario/v2.yaml).
 
 ```
 ---

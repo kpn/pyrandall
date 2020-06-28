@@ -5,6 +5,7 @@ import jsonschema
 import yaml
 
 import pyrandall.behaviors
+from pyrandall import const
 from pyrandall.exceptions import InvalidSchenarioVersion
 from pyrandall.types import (
     Adapter,
@@ -15,14 +16,6 @@ from pyrandall.types import (
 )
 
 from .network import join_urlpath
-
-DIR_PATH_DEFAULT = "."
-
-DIR_PYRANDALL_HOME = os.path.dirname(os.path.abspath(__file__))
-SCHEMAS_SCENARIO_V2 = os.path.join(DIR_PYRANDALL_HOME, "schemas/scenario/v2.yaml")
-
-VERSION_SCENARIO_V2 = "scenario/v2"
-VERSIONS = [VERSION_SCENARIO_V2]
 
 
 class V2Factory(object):
@@ -37,10 +30,10 @@ class V2Factory(object):
 
 
 class SpecBuilder:
-    def __init__(self, specfile, scenarios_dirname="scenarios", **kwargs):
+
+    def __init__(self, specfile, **kwargs):
         self.factory = V2Factory(**kwargs)
-        dataflow_path = kwargs.get("dataflow_path", DIR_PATH_DEFAULT)
-        self.scenario_file = os.path.join(dataflow_path, scenarios_dirname, specfile)
+        self.specfile = specfile
 
     def feature(self):
         # creating Feature object will marshall everything below it
@@ -48,18 +41,17 @@ class SpecBuilder:
 
     def load_spec(self):
         # TODO: prevent reading sensitive files from filesystem
-        with open(self.scenario_file, "r") as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
-            # implicitly assume scenario v2 schema
-            version = data.get("version", VERSION_SCENARIO_V2)
-            if version not in VERSIONS:
-                raise InvalidSchenarioVersion(VERSIONS)
-            # raises errors if unvalid to jsonschema
-            jsonschema.validate(data, self.scenario_v2_schema())
-            return data
+        data = yaml.load(self.specfile, Loader=yaml.FullLoader)
+        # implicitly assume scenario v2 schema
+        version = data.get("version", const.VERSION_SCENARIO_V2)
+        if version not in const.SCHEMA_VERSIONS:
+            raise InvalidSchenarioVersion(const.SCHEMA_VERSIONS)
+        # raises errors if unvalid to jsonschema
+        jsonschema.validate(data, self.scenario_v2_schema())
+        return data
 
     def scenario_v2_schema(self):
-        with open(SCHEMAS_SCENARIO_V2) as f:
+        with open(const.SCHEMA_V2_PATH) as f:
             return yaml.load(f.read(), Loader=yaml.FullLoader)
 
 
@@ -89,7 +81,7 @@ class ScenarioGroup(object):
         self,
         nr,
         data,
-        dataflow_path=DIR_PATH_DEFAULT,
+        dataflow_path,
         events_dirname="events",
         results_dirname="results",
         default_request_url=None,

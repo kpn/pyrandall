@@ -23,6 +23,8 @@ class Adapter(Enum):
 
 
 class Flags(Flag):
+    NOOP = 0  # No Operation
+    
     DESCRIBE = auto()
 
     BLOCKING = auto()
@@ -31,20 +33,16 @@ class Flags(Flag):
     SIMULATE = auto()
     VALIDATE = auto()
 
-    BLOCKING_E2E = BLOCKING | SIMULATE | VALIDATE
-    # REALTIME_E2E = REALTIME | SIMULATE | VALIDATE
+    E2E = BLOCKING | SIMULATE | VALIDATE
 
     # def run_realtime(self):
     #     return self & Flags.REALTIME
 
-    def run_blocking(self):
-        return self & Flags.BLOCKING
-
     def has_validate(self):
-        return self & Flags.VALIDATE
+        return Flags.VALIDATE in self
 
     def has_simulate(self):
-        return self & Flags.SIMULATE
+        return Flags.SIMULATE in self
 
 
 class Assertion:

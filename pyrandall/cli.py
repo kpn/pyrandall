@@ -1,126 +1,89 @@
 import json
 import sys
+import os
+import itertools
 from argparse import ArgumentParser
 
+import click
 import jsonschema
 
+from pyrandall import const
 from pyrandall import commander
 from pyrandall.hookspecs import get_plugin_manager
 from pyrandall.spec import SpecBuilder
 from pyrandall.types import Flags
 
-FLAGS_MAP = {
-    "simulate": Flags.SIMULATE,
-    "validate": Flags.VALIDATE,
-    "sanitytest": Flags.VALIDATE,  # legacy command
-}
+
+@click.command(name="pyrandall")
+@click.argument("specfiles", type=click.Path(exists=True), nargs=-1)
+@click.option("-c", "--config", 'config_file', type=click.File('r'), default="pyrandall_config.json", help="path to json file for pyrandall config.")
+@click.option("-s", "--only-simulate", 'command_flag', flag_value=Flags.SIMULATE, help="filters the spec and runs simulate steps")
+@click.option("-V", "--only-validate", 'command_flag', flag_value=Flags.VALIDATE, help="filters the spec and runs simulate steps")
+@click.option("-e", "--everything", 'command_flag', flag_value=Flags.E2E, default=True, help="(default) run simulate, then validate synchronously")
+@click.option("-d", "--dry-run", 'filter_flag', flag_value=Flags.DESCRIBE)
+@click.help_option()
+@click.version_option(version=const.get_version())
+def main(config_file, command_flag, filter_flag, specfiles):
+    """
+    pyrandall a test framework oriented around data validation instead of code
+
+    Example: pyrandall scenarios/foobar.yaml
+    """
+    # quickfix: Click will bypass argument callback when nargs=-1
+    # raising these click exceptions will translate to exit(2)
+    if not specfiles:
+        raise click.BadParameter('expecting at least one argument for specfiles')
+
+    if len(specfiles) > 1:
+        raise click.UsageError("passing multiple specfiles is not supported yet")
+
+    specfile = specfiles[0]
+    if os.path.isdir(specfile):
+        raise click.UsageError("passing directory path is not supported yet")
+
+    config = {}
+    if config_file:
+        config = json.load(config_file)
+
+    # translate None to NO OP Flag
+    if filter_flag is None:
+        filter_flag = Flags.NOOP
+
+    flags = command_flag | filter_flag
+    try:
+        run_command(config, flags, specfile)
+    except jsonschema.exceptions.ValidationError as e:
+        click.echo(f"Error on validating specfile {specfile} with jsonschema, given error:", err=True)
+        click.echo(e, err=True)
+        exit(4)
 
 
-def run_command(config):
-    specfile = config.pop("specfile")
-    config["default_request_url"] = config["requests"].pop("url")
-
-    # register plugins and call their initialize
-    plugin_manager = get_plugin_manager()
-    plugin_manager.hook.pyrandall_initialize(config=config)
-
-    spec = SpecBuilder(specfile, hook=plugin_manager.hook, **config).feature()
-    flags = FLAGS_MAP[config["command"]]
-    # commander handles execution flow with specified data and config
-    commander.Commander(spec, flags).invoke()
-
-
-def add_common_args(parser):
-    parser.add_argument("specfile", type=str, help="name of yaml file in scenario/")
-
-
-def setup_args():
-    parser = ArgumentParser(
-        description="pyrandall a test framework oriented around data validation instead of code"
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="pyrandall_config.json",
-        dest="config_path",
-        help="path to json file for pyrandall config.",
-    )
-    parser.add_argument(
-        "--dataflow",
-        type=str,
-        required=True,
-        dest="dataflow_path",
-        help="path to dataflow root directory",
-    )
-
-    subparsers = parser.add_subparsers(dest="command")
-    # add simulate subcommand
-    sim_parser = subparsers.add_parser("simulate", help="run Simulator for specfile")
-    add_common_args(sim_parser)
-    # add sanitycheck (legacy name)
-    san_parser = subparsers.add_parser(
-        "sanitytest", help="run Validate for specfile (Use validate command)"
-    )
-    add_common_args(san_parser)
-    # add validate subcommand
-    val_parser = subparsers.add_parser("validate", help="run Validate for specfile")
-    add_common_args(val_parser)
-
-    return parser
-
-
-def argparse_error(args_data):
-    msg = """
-#######
-Exit code was 2! Its assumed mocked arguments are wrong, see argparse usage below:
-
-\t%s
-
-actual arguments passed to mock:
-\t%s
-
-######
-""" % (
-        setup_args().format_help().replace("\n", "\n\t"),
-        args_data,
-    )
-    return msg
-
-
-def load_config(fpath):
-    with open(fpath, "r") as f:
-        return json.load(f)
-
-
-def start(argv, config=None):
-    parser = setup_args()
-    args_config = parser.parse_args(argv)
-
+def run_command(config, flags, specfile):
     # TODO: add logging options
     # with open("logging.yaml") as log_conf_file:
     #     log_conf = yaml.safe_load(log_conf_file)
     #     dictConfig(log_conf)
 
-    if args_config.command is None:
-        parser.error("not a valid pyrandall command")
-        exit(1)
+    config["default_request_url"] = config["requests"].pop("url")
+    config['dataflow_path'] = build_basedir(specfile)
+    config['specfile'] = click.open_file(specfile, 'r')
+    config['flags'] = flags
 
-    if config is None:
-        config = load_config(args_config.config_path)
+    # register plugins and call their initialize
+    plugin_manager = get_plugin_manager()
+    plugin_manager.hook.pyrandall_initialize(config=config)
 
-    # overwrite with cli options
-    config.update(args_config.__dict__)
-
-    try:
-        run_command(config)
-    except jsonschema.exceptions.ValidationError:
-        print("Failed validating input yaml")
-        exit(4)
-    exit(0)
+    spec = SpecBuilder(hook=plugin_manager.hook, **config).feature()
+    # commander handles execution flow with specified data and config
+    commander.Commander(spec, flags).invoke()
 
 
-def main():
-    start(sys.argv[1:])
+def build_basedir(specfile):
+    parts = specfile.split('/')
+    out = []
+    for x in itertools.takewhile(lambda x: x != const.DIRNAME_SCENARIOS, parts):
+        out.append(x)
+    return os.path.abspath('/'.join(out))
 
 
 if __name__ == "__main__":

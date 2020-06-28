@@ -8,8 +8,6 @@ interactions:
       - gzip, deflate
       Connection:
       - keep-alive
-      User-Agent:
-      - python-requests/2.23.0
     method: GET
     uri: http://localhost:5000/kv/pyrandall/avro_ok
   response:
@@ -21,9 +19,9 @@ interactions:
       Content-Type:
       - text/html; charset=utf-8
       Date:
-      - Mon, 16 Sep 2019 09:54:44 GMT
+      - Sun, 28 Jun 2020 12:36:04 GMT
       Server:
-      - Werkzeug/0.15.6 Python/3.7.4
+      - Werkzeug/0.16.0 Python/3.7.5
     status:
       code: 200
       message: OK

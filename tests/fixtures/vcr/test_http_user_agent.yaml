@@ -10,6 +10,8 @@ interactions:
       - keep-alive
       Content-Length:
       - '14'
+      User-Agent:
+      - pyrandall/1.0.0
     method: POST
     uri: http://localhost:5000/users
   response:
@@ -21,7 +23,7 @@ interactions:
       Content-Type:
       - text/html; charset=utf-8
       Date:
-      - Sat, 27 Jun 2020 09:31:48 GMT
+      - Sat, 27 Jun 2020 10:26:54 GMT
       Server:
       - Werkzeug/0.16.0 Python/3.7.5
     status:

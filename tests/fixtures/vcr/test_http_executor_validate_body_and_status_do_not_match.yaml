@@ -1,7 +1,13 @@
 interactions:
 - request:
     body: null
-    headers: {}
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
     method: GET
     uri: http://localhost:5000/foo/2
   response:
@@ -13,9 +19,9 @@ interactions:
       Content-Type:
       - text/html; charset=utf-8
       Date:
-      - Mon, 16 Sep 2019 09:54:45 GMT
+      - Sat, 27 Jun 2020 09:46:28 GMT
       Server:
-      - Werkzeug/0.15.6 Python/3.7.4
+      - Werkzeug/0.16.0 Python/3.7.5
     status:
       code: 200
       message: OK
