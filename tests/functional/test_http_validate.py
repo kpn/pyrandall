@@ -1,49 +1,43 @@
-import os
 import pytest
-import threading
+from click.testing import CliRunner
 
-from freezegun import freeze_time
-from tests.helper import KafkaProducer
-from pyrandall.kafka import KafkaSetupError
+from pyrandall import cli
 
-TOPIC_1 = "pyrandall-tests-validate-1"
-TOPIC_2 = "pyrandall-tests-validate-2"
-
-ARGV_SMALL = [
+ARGV_HTTP_VALIDATE_1_OK = [
     "--config",
     "examples/config/v1.json",
     "-V",
-    "examples/scenarios/v2_ingest_kafka_small.yaml"
+    "examples/scenarios/http/validate_ok_status_code.yaml",
+]
+ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL = [
+    "--config",
+    "examples/config/v1.json",
+    "-V",
+    "examples/scenarios/http/validate_bad_status_code.yaml",
 ]
 
 
-def produce_events():
-    producer = KafkaProducer(TOPIC_1)
-    producer.send(b'{"click": "three"}')
-    producer.send(b'{"click": "one"}')
-    producer.send(b'{"click": "two"}')
-
-    producer = KafkaProducer(TOPIC_2)
-    producer.send(b'{"click": "three"}')
+def test_execute_a_sanitytest_fails():
+    runner = CliRunner()
+    result = runner.invoke(cli.main, [], catch_exceptions=False)
+    assert 'Usage: pyrandall' in result.output
+    assert result.exit_code == 2
 
 
-def test_error_on_connection_timeout(monkeypatch, pyrandall_cli):
-    monkeypatch.setenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:3330")
-    with pytest.raises(KafkaSetupError) as e:
-        pyrandall_cli.invoke(ARGV_SMALL)
+def test_validate_assertions_pass(vcr):
+    with vcr.use_cassette("test_validate_assertions_pass") as cassette:
+        runner = CliRunner()
+        result = runner.invoke(cli.main, ARGV_HTTP_VALIDATE_1_OK, catch_exceptions=False)
+        assert 'Usage: pyrandall' not in result.output
+        assert result.exit_code == 0
+        assert cassette.all_played
 
-@freeze_time("2012-01-14 14:33:12")
-def test_received_no_events(monkeypatch, kafka_cluster_info, pyrandall_cli):
-    result = pyrandall_cli.invoke(ARGV_SMALL)
-    # exit code should be 1 (error)
-    assert 'Usage: main' not in result.output
-    print(result.output)
-    assert result.exit_code == 1
 
-@freeze_time("2012-01-14 14:33:12")
-def test_validate_unordered_passed(kafka_cluster_info, pyrandall_cli):
-    produce_events()
-    result = pyrandall_cli.invoke(ARGV_SMALL)
-    # exit code should be 1 (error)
-    assert 'Usage: main' not in result.output
-    assert result.exit_code == 0
+def test_validate_fail_status_code(vcr):
+    with vcr.use_cassette("test_validate_fail_status_code") as cassette:
+        runner = CliRunner()
+        result = runner.invoke(cli.main, ARGV_HTTP_VALIDATE_STAUTS_CODE_FAIL, catch_exceptions=False)
+
+        assert 'Usage: pyrandall' not in result.output
+        assert result.exit_code == 1
+        assert cassette.all_played

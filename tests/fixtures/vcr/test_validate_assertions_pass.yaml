@@ -1,0 +1,28 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+    method: GET
+    uri: http://localhost:5000/kv/pyrandall/avro_ok
+  response:
+    body:
+      string: '{"Avro": "ok"}'
+    headers:
+      Content-Length:
+      - '14'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Sun, 28 Jun 2020 12:36:04 GMT
+      Server:
+      - Werkzeug/0.16.0 Python/3.7.5
+    status:
+      code: 200
+      message: OK
+version: 1
