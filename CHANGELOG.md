@@ -9,14 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *BREAKING CHNAGES*:
 Pyrandall is moving to single command cli. Similar to pytest and rspec.
 ### Removed
-- the cli sub-commands `simulate`, `sanitycheck` and `validate`
+- Removed commands `simulate`, `sanitycheck` and `validate`
 in favor of a single command with options flags.
-- the option for `--dataflow` in favor of absolute paths to a scenario file.
+- Dropped arg option `--dataflow`. Please rewrite this
+```
+pyrandall --dataflow examples/ simulate http/simulate_200.yaml
+```
+
+into this:
+```
+pyrandall -S examples/scenarios/http/simulate_200.yaml
+```
 the event/result files mentioned in a specfile are resolved by relative lookup
 still trying to adhere to "convention over configuration".
-In future release support for directory wildcards can be added without breaking the api.
 ### Added
-- added option `--everything` (to run e2e) that is the default. Meaning will run both simulate and validate steps from the spec.
+- added option `--everything` (to run e2e) that is the default. Meaning pyrandall executes the steps simulate and validate in sequence.
 The execution order (sync or async) is open for extension.
 This should be treated as an alpha feature followed by fixes and enhancements.
 
