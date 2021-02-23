@@ -1,3 +1,9 @@
+#!/bin/bash
+
+function apply_license {
+ temp_file=$(mktemp)
+
+ cat << HEREDOC > $temp_file
 # Copyright 2019 KPN N.V.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,24 +19,16 @@
 # limitations under the License.
 # =========================================================================
 
----
-version: scenario/v2
-feature:
-  description: V2 schema exampe
-  # events
-  scenarios:
-    - description: HTTP to schema-ingest and schema-egress apis
-      simulate:
-        adapter: requests/http
-        requests:
-          - path: /v1/actions/produce-event
-            events:
-              - words1.http
-              - words2.http
-      validate:
-        adapter: requests/http
-        requests:
-          - path: /foo/bar/123
-            assert_that_responded:
-              status_code: { equals_to: 200 }
-              body: { equals_to_event: words1.http }
+HEREDOC
+
+ cat $1 >> $temp_file
+
+ mv $temp_file $1
+}
+
+
+FILES_1=$(find {pyrandall,tests} -type f -name "*.py")
+FILES_2=$(find {pyrandall,examples} -type f -name "*.yaml")
+for f in $FILES_1 $FILES_2; do
+ apply_license $f;
+done
