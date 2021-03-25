@@ -16,7 +16,7 @@ setup(
         "jsonschema",
         "jsondiff",
         "requests~=2.20",
-        "PyYAML==5.1",
+        "PyYAML==5.4",
         "Mako",
         "curlify",
         "confluent-kafka~=1.0",
